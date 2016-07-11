@@ -1,0 +1,21 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[branch "master"]
+[branch "master"]
+[remote "mert"]
+	url = https://github.com/mert16/mert.git
+	fetch = +refs/heads/*:refs/remotes/mert/*
+[user]
+	name = pzany
+	email = philipzany@gmail.com
+[remote "origin"]
+	url = https://github.com/pzany/mert
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master

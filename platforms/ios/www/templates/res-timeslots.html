@@ -1,0 +1,27 @@
+<!--
+Inherits the following models from ResourceTimeslotCtrl controller:
+hours: array of hour string (scalar)
+-->
+<ion-view view-title="{{dow}} {{date}}">
+  <ion-content class="padding">
+    <!--h2>{{res.name}}</h2-->
+    <ion-list>
+      <ion-item class="item-remove-animate item-icon-right" ng-class="itemcolor(res.id,date,hour)"  
+      ng-repeat="hour in hours" type="item-text-wrap" href={{isbooking(res.id,date,hour)?'':'#/tab/resources/addbooking'}}>
+        <h2>{{hour}} {{isbooking(res.id,date,hour)?'Booked!':'Available'}}</h2>
+        <p>notes</p>
+
+        <i class="icon ion-chevron-right icon-accessory"></i>
+
+        <ion-option-button ng-if="isbooking(res.id,date,hour)" class="button-assertive" 
+        ng-click="delbooking(bookingID(res.id,date,hour))">
+          Delete
+        </ion-option-button>
+
+      </ion-item>
+    </ion-list>
+    <!--p>
+      Timeslots Info
+    </p-->
+  </ion-content>
+</ion-view>

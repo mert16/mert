@@ -1,0 +1,29 @@
+<ion-view view-title="Resources">
+  <ion-content>
+    <p>
+      {{htdata}}
+    </p>
+    <ion-list>
+      <ion-item class="item-remove-animate item-icon-right" ng-repeat="res in resources" type="item-text-wrap" href="#/tab/resources/bookings/{{res.id}}">
+        <h2>{{res.id}} {{res.name}}</h2>
+        <p>{{res.owner}}</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>
+    </ion-list>
+
+    <!--p><button ng-click="update()"> Update </button></p-->
+  </ion-content>
+</ion-view>
+
+    <!--ion-list>
+      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/tab/chats/{{chat.id}}">
+        <img ng-src="{{chat.face}}">
+        <h2>{{chat.name}}</h2>
+        <p>{{chat.lastText}}</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+
+        <ion-option-button class="button-assertive" ng-click="remove(chat)">
+          Delete
+        </ion-option-button>
+      </ion-item>
+    </ion-list-->
