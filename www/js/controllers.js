@@ -1,20 +1,30 @@
-// architecture originally designed by Philip Pang
-// subsequent changes by other team members
+// MERT App based on IONIC Framework
+
+/*
+controllers.js
+(c) July 2016
+
+Initial codebase written by Philip Pang with enhancements
+by:
+- David Prasad
+- Ratheesh Kumar
+*/
 
 angular.module('controllers', [])
 
-
+  // controller for "Home tab" view"
   .controller('HomeCtrl', function ($scope, User) {
     db("Home tab");
 
     $scope.user = User.getModel();
 
     $scope.showuser = function () {
-      db("Selected user is " + User.getName());
+      popAlert ("'Authenticated' user is " + User.getName(), "Alert");
     };
   })
 
 
+  // controller for "Resources tab" view
   .controller('ResourceCtrl', function ($scope, $timeout, Resources) {
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
@@ -35,6 +45,8 @@ angular.module('controllers', [])
     );
   })
 
+
+  // controller for "Resources tab > Bookings" view
   .controller('ResourceBookingCtrl', function ($scope, $stateParams, $timeout,
     Resources, AvailDates, MertServer) {
 
@@ -48,6 +60,7 @@ angular.module('controllers', [])
   })
 
 
+  // controller for "Resources tab > Bookings > Selected Date" view
   .controller('ResourceTimeslotCtrl', function ($scope, $stateParams, $timeout,
     Resources, Bookings, User) {
 
@@ -107,6 +120,7 @@ angular.module('controllers', [])
   })
 
 
+  // controller for "Resources tab > Bookings > Selected Date > Add" view
   .controller('ResourceAddbookingCtrl', function ($scope, $stateParams, $timeout, $ionicHistory,
     Resources, Bookings, User) {
 
@@ -136,17 +150,6 @@ angular.module('controllers', [])
 
     $scope.addbooking = function () {
 
-      /* debug
-      var ht = ""; var nl = "\n";
-      ht += "Add new booking!" + nl;
-      ht += "Res: " + $scope.res.name + nl;
-      ht += "User: " + $scope.user.name + nl;
-      ht += "begDate: " + $scope.begin.date + nl;
-      ht += "begTime: " + $scope.begin.time + nl;
-      ht += "endDate: " + $scope.end.date + nl;
-      ht += "endTime: " + $scope.end.time + nl;
-      if (!confirm(ht)) return; */
-
       Bookings.addBooking($scope.res.id, $scope.user.name, $scope.begin.date, $scope.begin.time,
         $scope.end.date, $scope.end.time).then(
         function (data) {
@@ -158,13 +161,14 @@ angular.module('controllers', [])
           );
         },
         function (reason) {
-          db(reason);
+          popAlert(reason);
         }
         );
     };
   })
 
 
+  // controller for "Resources tab > Bookings > Info" view
   .controller('ResourceInfoCtrl', function ($scope, $stateParams, $timeout,
     Resources) {
 
@@ -179,6 +183,7 @@ angular.module('controllers', [])
   })
 
 
+  // controller for "Bookings tab" view
   .controller('BookingsCtrl', function ($scope, $timeout,
     Bookings, Resources, User) {
 

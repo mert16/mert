@@ -7,9 +7,6 @@
 	precomposeunicode = true
 [branch "master"]
 [branch "master"]
-[remote "mert"]
-	url = https://github.com/mert16/mert.git
-	fetch = +refs/heads/*:refs/remotes/mert/*
 [user]
 	name = pzany
 	email = philipzany@gmail.com

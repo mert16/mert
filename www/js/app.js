@@ -1,4 +1,15 @@
-// Ionic Starter App
+// MERT App based on IONIC Framework
+
+/*
+app.js
+(c) July 2016
+
+Initial codebase written by Philip Pang with enhancements
+by:
+- David Prasad
+- Ratheesh Kumar
+*/
+
 
 var curDate = new Date();
 var dd = curDate.getDate();

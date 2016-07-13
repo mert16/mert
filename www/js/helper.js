@@ -1,16 +1,42 @@
+// MERT App based on IONIC Framework
+
+/*
+helper.js
+(c) July 2016
+
+Initial codebase written by Philip Pang with enhancements
+by:
+- David Prasad
+- Ratheesh Kumar
+*/
+
 // helper.js - Helper Functions
 // These are std JS functions, non-Angular related
 // In VS Code, type Shift-Opt-F to beautify!
+
 
 gv_Debug = false;
 
 // use this to print debug messages
 // may be globally switched off using gv_Debug = false above
-function db (m) {
+function db(m) {
   if (!gv_Debug) return;
   if (!confirm(m)) {
     gv_Debug = false;
     return;
+  }
+}
+
+function popAlert(msg, title) {
+  if (window.cordova) {
+    if (typeof title == "undefined") title = "Alert";
+    navigator.notification.alert(
+      msg, null,
+      title, "Ok"
+    );     
+  }
+  else {
+    alert (msg);
   }
 }
 
@@ -88,10 +114,11 @@ function makeHoursArray() {
   return hhArr;
 }
 
-// update controllers
-function updateController (ctrlScope) {
-  if (typeof ctrlScope == "undefined") return;
-  if (ctrlScope === null) return;
-  if (ctrlScope === false) return;
-  ctrlScope.update();
+function getTodayStr () {
+  var dateObj = new Date();
+  var dd = dateObj.getDate();
+  var mm = dateObj.getMonth();
+  var yy = dateObj.getFullYear();
+  var todayStr = yy + "-" + prepad((mm + 1), 2) + "-" + prepad(dd, 2);
+  return todayStr;
 }

@@ -1,3 +1,16 @@
+// MERT App based on IONIC Framework
+
+/*
+services.js
+(c) July 2016
+
+Initial codebase written by Philip Pang with enhancements
+by:
+- David Prasad
+- Ratheesh Kumar
+*/
+
+
 myservices = angular.module('services', []);
 
 myservices.factory('User',function () {
@@ -187,7 +200,7 @@ myservices.factory('Bookings', function ($http, $timeout, MertServer) {
     load: function () {
       var p = new Promise(function (resolve, reject) {
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
-        url += "&m=mert_svc&cmd=queryTable&p1=Bookings";
+        url += "&m=mert_svc&cmd=getBookings&p1=" + getTodayStr();
         doJSONP($http, url).then(
           function (data) {
             db("Loaded bookings from MERT server. Count = " + data.length);
