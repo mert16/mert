@@ -6,6 +6,8 @@
 -->
 <ion-view view-title="{{res.name}} Specs">
   <ion-content class="padding">
+    <img src="http://{{MertServer}}/images/{{res.image}}" 
+    style="height:200px; display:block; margin:0 auto;" />
     <p>
       <span style="font-size:1.5em">Owner: {{res.owner}}</span>
       <div ng-repeat="specs in specsArr">

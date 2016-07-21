@@ -6,6 +6,10 @@ day: day.dow, day.date
 -->
 <ion-view view-title="{{res.name}}">
   <ion-content class="padding">
+    <a href="#/tab/resources/info/{{res.id}}">
+    <img src="http://{{MertServer}}/images/{{res.image}}" 
+      style="height:200px; display:block; margin:0 auto;"/>
+    </a>
     <ion-list>
       <ion-item class="item-remove-animate item-icon-right" ng-repeat="day in dates" type="item-text-wrap" 
       href="#/tab/resources/timeslots/{{day.date}}/{{day.dow}}/{{res.id}}">

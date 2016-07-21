@@ -6,10 +6,11 @@
         Enable Friends
     </ion-toggle-->
 
-      <ion-item class="item-remove-animate item-icon-right" ng-repeat="book in bookings | filter:filterHashSpec | orderBy:['begDate','begTime']" type="item-text-wrap" href="">
+      <ion-item class="item-remove-animate item-icon-right" ng-repeat="book in bookings | filter:filterHashSpec | orderBy:['begDate','begTime']" 
+      type="item-text-wrap" href="#/tab/bookings/info/{{book.res}}">
         <h2>{{resObj(book.res).name}}</h2>
         <p>{{book.begDate}} {{book.begTime}} to {{book.endDate}} {{book.endTime}}</p>
-        <!--i class="icon ion-chevron-right icon-accessory"></i-->
+        <i class="icon ion-chevron-right icon-accessory"></i>
 
         <ion-option-button class="button-assertive" 
          ng-click="delbookingByID (book.id)">

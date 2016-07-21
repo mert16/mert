@@ -1,0 +1,51 @@
+<ion-view view-title="{{ subview.title }}">
+  <ion-content class="padding">
+
+    <div ng-if="subview.register">
+      <br><br><br>
+      <h2 style='text-align:center'>
+        MERT version 2.0
+      </h2>
+      <p style='text-align:center'>
+        Registration Page
+      </p>
+      <br>
+      <br>
+      <p style='text-align:center;'>
+        <select ng-model="user.name">
+        <option>philip</option>
+        <option>david</option>
+        <option>ratheesh</option>
+        <option>francis</option>
+     </select>
+      </p>
+      <br>
+      <br>
+      <p style='text-align:center;'>
+        <button ng-click="showuser()"> Show Who </button>
+      </p>
+      <p style='text-align:center;'>
+        <button ng-click="registerUser()"> Register </button>
+      </p>
+    </div>
+
+    <div ng-if="subview.tutorial">
+      <br><br><br>
+      <h2 style='text-align:center'>
+        MERT version 2.0
+      </h2>
+      <p style='text-align:center'>
+        Once Only Tutorial Page
+      </p>
+      <br>
+      <p style='text-align:center'>
+        This is how you should use this App!
+      </p>
+      <br><br><br><br>
+      <p style='text-align:center;'>
+        <button ng-click="start()"> Start </button>
+      </p>
+    </div>
+
+  </ion-content>
+</ion-view>

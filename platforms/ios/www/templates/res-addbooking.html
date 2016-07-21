@@ -3,16 +3,38 @@ Inherits the following models from ResourceAddbookingCtrl controller:
 ...
 -->
 <ion-view view-title="Add Booking">
+
+  <ion-nav-buttons side="right">
+    <button ng-click="addbooking()" class="button button-clear button-dark" style='font-weight:bold'>Add</button>
+  </ion-nav-buttons>
+
   <ion-content class="padding">
-    <!--ion-list>
-      <ion-item class="item-remove-animate item-icon-right" ng-repeat="hour in hours" type="item-text-wrap" href="#/tab/resources">
-        <h2>{{hour}}</h2>
-        <p>notes</p>
-        <i class="icon ion-chevron-right icon-accessory"></i>
-      </ion-item>
-    </ion-list-->
-    <p>
-      Add Booking Info
+
+    <p style="font-size:1.3em">
+      ID: {{res.id}}<br>
+      Name: {{res.name}}<br>
+      Owner: {{res.owner}}<br><br>
+
+      User: {{user.name}}<br><br>
+
+      Start Date: {{begin.date}} <br>
+      Start Time: {{begin.time}} <br><br>
+
+      End Date: 
+      <select ng-model="end.date" ng-init="end.date=begin.date">
+        <option>{{begin.date}}</option>
+        <option>{{getNextDate(begin.date,1)}}</option>
+        <option>{{getNextDate(begin.date,2)}}</option>
+        <option>{{getNextDate(begin.date,3)}}</option>
+        <option>{{getNextDate(begin.date,4)}}</option>
+        <option>{{getNextDate(begin.date,5)}}</option>
+     </select><br>
+
+     End Time:
+      <select ng-model="end.time" ng-init="end.time=getNextTime(begin.time,30)">
+        <option ng-repeat="hh in hours">{{hh}}</option>
+     </select><br>
+     
     </p>
   </ion-content>
 </ion-view>

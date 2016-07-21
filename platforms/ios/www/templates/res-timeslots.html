@@ -4,16 +4,15 @@ hours: array of hour string (scalar)
 -->
 <ion-view view-title="{{dow}} {{date}}">
   <ion-content class="padding">
-    <!--h2>{{res.name}}</h2-->
+    <ion-refresher pulling-text="Pull to refresh" on-refresh="doRefresh()"></ion-refresher>
     <ion-list>
       <ion-item class="item-remove-animate item-icon-right" ng-class="itemcolor(res.id,date,hour)"  
-      ng-repeat="hour in hours" type="item-text-wrap" href={{isbooking(res.id,date,hour)?'':'#/tab/resources/addbooking'}}>
-        <h2>{{hour}} {{isbooking(res.id,date,hour)?'Booked!':'Available'}}</h2>
-        <p>notes</p>
+      ng-repeat="hour in hours" type="item-text-wrap" href={{isbooking(res.id,date,hour)?'':'#/tab/resources/addbooking/'+date+'/'+hour+'/'+res.id}}>
+        <h2>{{hour}} {{isbooking(res.id,date,hour)?'Booked by '+bookingUser(res.id,date,hour):'Available'}}</h2>
 
         <i class="icon ion-chevron-right icon-accessory"></i>
 
-        <ion-option-button ng-if="isbooking(res.id,date,hour)" class="button-assertive" 
+        <ion-option-button ng-if="isbooking(res.id,date,hour) && bookingUser(res.id,date,hour)==user.name" class="button-assertive" 
         ng-click="delbooking(bookingID(res.id,date,hour))">
           Delete
         </ion-option-button>

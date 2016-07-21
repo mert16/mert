@@ -2,7 +2,7 @@
 
 /*
 controllers.js
-(c) July 2016
+(c) Philip Pang, July 2016
 
 Initial codebase written by Philip Pang with enhancements
 by:
@@ -13,27 +13,70 @@ by:
 angular.module('controllers', [])
 
   // controller for "Home tab" view"
-  .controller('HomeCtrl', function ($scope, User) {
+  .controller('InitCtrl', function ($scope, User, $localStorage, $timeout) {
     db("Home tab");
 
-    $scope.user = User.getModel();
+    $scope.$on('$ionicView.enter', function (e) {
 
-    $scope.showuser = function () {
-      popAlert ("'Authenticated' user is " + User.getName(), "Alert");
-    };
+      if ('userObj' in $localStorage) {
+        db("Found user! user/token is " + $localStorage.userObj.name + " / " +
+          $localStorage.userObj.token);
+        User.setModel($localStorage.userObj);
+        changeView("tab.resources");
+        return;
+      }
+
+      db("There is no userObj in localStorage");
+
+      // switch to user registration sub-view
+      $scope.subview = {
+        register: true,
+        tutorial: false,
+        title: "Registration"
+      };
+
+      $scope.user = User.getModel();
+
+      $scope.showuser = function () {
+        popAlert("user is " + User.getName() + " tkn " + User.getToken(), "Alert");
+      };
+
+      $scope.registerUser = function () {
+
+        var tkt = prompt("Enter ticket for this user", "one");
+
+        getUserToken(User.getName(), tkt).then(
+          function (token) {
+            db("Token is " + token);
+
+            // update User svc
+            User.setToken(token);
+
+            // store token in persistent storage
+            $localStorage.userObj = $scope.user;
+
+            $scope.subview = {
+              register: false,
+              tutorial: true,
+              title: "Tutorial"
+            };
+            $timeout();
+          },
+          function (error) {
+            popAlert(error, "Message");
+          }
+        );
+      };
+
+      // for start button in tutorial sub-view
+      $scope.start = function () {
+        changeView("tab.resources");
+      };
+    });
   })
-
 
   // controller for "Resources tab" view
   .controller('ResourceCtrl', function ($scope, $timeout, Resources) {
-    // With the new view caching in Ionic, Controllers are only called
-    // when they are recreated or on app start, instead of every page change.
-    // To listen for when this page is active (for example, to refresh data),
-    // listen for the $ionicView.enter event:
-    //
-    //$scope.$on('$ionicView.enter', function(e) {
-    //});
-
     db("Resource tab");
 
     Resources.getModel().then(
@@ -170,14 +213,15 @@ angular.module('controllers', [])
 
   // controller for "Resources tab > Bookings > Info" view
   .controller('ResourceInfoCtrl', function ($scope, $stateParams, $timeout,
-    Resources) {
+    Resources, MertServer) {
 
     db("Resource Specs View of resID " + $stateParams.resID);
 
     var resObj = Resources.get($stateParams.resID);
-
     $scope.res = resObj;
 
+    $scope.MertServer = MertServer;
+    
     var specsArr = resObj.specs.split(",");
     $scope.specsArr = specsArr;
   })
@@ -238,4 +282,33 @@ angular.module('controllers', [])
       });
     };
 
+  })
+
+
+  // controller for "Request tab" view"
+  .controller('RequestCtrl', function ($scope, $localStorage, User) {
+    db("Request tab");
+
+    $scope.user = User.getModel();
+
+    $scope.showuser = function () {
+      popAlert("user is " + User.getName() + " tkn " + User.getToken(), "Alert");
+    };
+
+    $scope.resetuser = function () {
+      if (!confirm("Reset User. Are you sure?")) return;
+
+      // reset User svc
+      User.setName("");
+      User.setToken("");
+
+      // delete token from persistent storage
+      delete $localStorage.userObj;
+
+      // go back to init registration sub-view
+      changeView("init");
+    }
+
   });
+
+//alert("controllers.js loaded");

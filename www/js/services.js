@@ -2,7 +2,7 @@
 
 /*
 services.js
-(c) July 2016
+(c) Philip Pang, July 2016
 
 Initial codebase written by Philip Pang with enhancements
 by:
@@ -15,7 +15,8 @@ myservices = angular.module('services', []);
 
 myservices.factory('User',function () {
   var model = {
-    name: "philip"
+    name: "philip",
+    token: ""
   };
 
   var userObj = {
@@ -24,13 +25,26 @@ myservices.factory('User',function () {
       return model;
     },
 
+    setModel: function (m) {
+      model = m;
+    },
+
     getName: function () {
       return model.name;
     },
 
     setName: function (n) {
       model.name = n;
+    },
+
+    getToken: function () {
+      return model.token;
+    },
+
+    setToken: function (t) {
+      model.token = t;
     }
+
   };
 
   // export service object globally
@@ -40,25 +54,11 @@ myservices.factory('User',function () {
   return userObj;
 });
 
-myservices.factory('Resources', function ($http, MertServer) {
+myservices.factory('Resources', function (MertServer) {
 
   // populate model with some static data
-  /* var model = [
-    { id: 1, name: "Projector", owner: "R&D West", image: "" },
-    { id: 2, name: "Oscilloscope", owner: "R&D East", image: "" },
-    { id: 3, name: "3D Printer", owner: "Operations", image: "" },
-    { id: 4, name: "Smart Board", owner: "Marketing", image: ""  },
-    { id: 5, name: "Frequency Generator 1", owner: "Test Lab", image: ""  },
-    { id: 6, name: "Frequency Generator 2", owner: "Test Lab", image: ""  },
-    { id: 7, name: "Laser Ruler", owner: "Test Lab", image: ""  },
-    { id: 8, name: "Tablet PC 1", owner: "Test Lab", image: ""  },
-    { id: 9, name: "Tablet PC 2", owner: "Test Lab", image: ""  },
-    { id: 10, name: "Linux Server", owner: "Test Lab", image: ""  },
-    { id: 11, name: "Video Camera", owner: "Marketing", image: ""  },
-    { id: 12, name: "Android Tablet", owner: "Marketing", image: ""  },
-    { id: 13, name: "Apple iPad Mini", owner: "Marketing", image: ""  },
-    { id: 14, name: "LAN Analyser", owner: "Test Lab", image: ""  }
-  ]; */
+  // initial static model (testdata.js)
+  //var model = gv_Resources;
 
   // initial model is empty
   var validflag = false;
@@ -71,7 +71,7 @@ myservices.factory('Resources', function ($http, MertServer) {
       var p = new Promise(function (resolve, reject) {
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
         url += "&m=mert_svc&cmd=queryTable&p1=Resources";
-        doJSONP($http, url).then(
+        doJSONP2(url).then(
           function (data) {
             db("Loaded resources from MERT server. Count = " + data.length);
             model = data;  // cache locally
@@ -185,9 +185,9 @@ myservices.factory('AvailDates', function () {
 });
 
 // Confirmed Booking Dates
-myservices.factory('Bookings', function ($http, $timeout, MertServer) {
+myservices.factory('Bookings', function ($timeout, MertServer) {
 
-  // initial static model
+  // initial static model (testdata.js)
   //var model = gv_Bookings;
 
   // initialise model (empty)
@@ -201,7 +201,7 @@ myservices.factory('Bookings', function ($http, $timeout, MertServer) {
       var p = new Promise(function (resolve, reject) {
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
         url += "&m=mert_svc&cmd=getBookings&p1=" + getTodayStr();
-        doJSONP($http, url).then(
+        doJSONP2 (url).then(
           function (data) {
             db("Loaded bookings from MERT server. Count = " + data.length);
             model = data;  // cache locally
@@ -290,9 +290,13 @@ myservices.factory('Bookings', function ($http, $timeout, MertServer) {
           return;
         }
 
+        var whereObj = {
+          id: id
+        }
+
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
-        url += "&m=mert_svc&cmd=delBooking&p1=" + id;
-        doJSONP($http, url).then(
+        url += "&m=mert_svc&cmd=delTable&p1=Bookings&p2=" + encodeURIComponent(JSON.stringify(whereObj));
+        doJSONP2 (url).then(
           function (data) {
             db("Delete MERT server booking status is " + data);
             resolve ("OK");
@@ -318,7 +322,7 @@ myservices.factory('Bookings', function ($http, $timeout, MertServer) {
       url += "&m=mert_svc&cmd=addBooking&p1=" + encodeURIComponent(vlist);
 
       var p = new Promise(function (resolve, reject) {
-        doJSONP($http, url).then(
+        doJSONP2 (url).then(
           function (data) {
             if (data == "OK") {
               db("Add booking to MERT server: Status is " + data);
@@ -340,3 +344,5 @@ myservices.factory('Bookings', function ($http, $timeout, MertServer) {
   // export service object for DI
   return bookingsObj;
 });
+
+//alert ("services.js loaded");
