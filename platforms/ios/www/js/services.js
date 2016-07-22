@@ -91,9 +91,16 @@ myservices.factory('Resources', function (MertServer) {
       var p = new Promise(function (resolve, reject) {
         if (validflag) resolve(model);
         else {
+          showWait ("visible","Loading");
           self.load().then(
-            function (data) { resolve(data); },
-            function (err) { reject(err); }
+            function (data) {
+              showWait ("hide"); 
+              resolve(data);
+            },
+            function (err) { 
+              showwait ("hide");
+              reject(err);
+            }
           );
         }
       });
@@ -221,9 +228,17 @@ myservices.factory('Bookings', function ($timeout, MertServer) {
       var p = new Promise(function (resolve, reject) {
         if (validflag) { db('cached bookings'); resolve(model); }
         else {
+          showWait ("visible","Loading");
           self.load().then(
-            function (data) { db('server bookings'); resolve(data); },
-            function (err) { reject(err); }
+            function (data) {
+              showWait("hide");
+              db('server bookings'); 
+              resolve(data);
+            },
+            function (err) {
+              showWait("hide");
+              reject(err);
+            }
           );
         }
       });

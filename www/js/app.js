@@ -26,18 +26,25 @@ var today = yy + "-" + prepad((mm + 1), 2) + "-" + prepad(dd, 2);
 // 'starter.controllers' is found in controllers.js
 angular.module('mert', ['ionic', 'controllers', 'services', 'ngStorage'])
 
-  .constant ("MertServer","edu.ipg.4u.sg")
+  .constant("MertServer", "edu.ipg.4u.sg")
 
-  .run(function ($ionicPlatform,$http,$state) {
-    
+  .run(function ($ionicPlatform, $http, $state, $localStorage, $ionicLoading) {
+
     db("App.run()");
 
     // init doJSONP2
-    doJSONP2 ($http,true);
+    doJSONP2($http, true);
+
+    // init vault
+    vault("init", $localStorage);
 
     // init changeView
-    changeView ($state,true);
+    changeView($state, true);
 
+    // initi showWait
+    showWait ("init", $ionicLoading);
+
+    // ionic and cordova are ready
     $ionicPlatform.ready(function () {
 
       db("ionicPlatform ready!");
@@ -160,4 +167,4 @@ angular.module('mert', ['ionic', 'controllers', 'services', 'ngStorage'])
 
   });
 
-//alert ("app.js loaded");
+//alert("app.js loaded");

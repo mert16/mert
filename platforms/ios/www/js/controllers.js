@@ -13,20 +13,22 @@ by:
 angular.module('controllers', [])
 
   // controller for "Home tab" view"
-  .controller('InitCtrl', function ($scope, User, $localStorage, $timeout) {
-    db("Home tab");
+  .controller('InitCtrl', function ($scope, $timeout, User) {
+    db("Transient Init view");
 
     $scope.$on('$ionicView.enter', function (e) {
 
-      if ('userObj' in $localStorage) {
-        db("Found user! user/token is " + $localStorage.userObj.name + " / " +
-          $localStorage.userObj.token);
-        User.setModel($localStorage.userObj);
+      var userObj = vault ("get");
+
+      if (userObj != null) {
+        db("Found user! user/token is " + userObj.name + " / " +
+          userObj.token);
+        User.setModel(userObj);
         changeView("tab.resources");
         return;
       }
 
-      db("There is no userObj in localStorage");
+      db("There is no userObj in the vault");
 
       // switch to user registration sub-view
       $scope.subview = {
@@ -45,15 +47,20 @@ angular.module('controllers', [])
 
         var tkt = prompt("Enter ticket for this user", "one");
 
+        showWait ("visible","Registering");
+
         getUserToken(User.getName(), tkt).then(
           function (token) {
+
+            showWait ("hide");
+
             db("Token is " + token);
 
             // update User svc
             User.setToken(token);
 
             // store token in persistent storage
-            $localStorage.userObj = $scope.user;
+            vault ("put",$scope.user);
 
             $scope.subview = {
               register: false,
@@ -62,7 +69,9 @@ angular.module('controllers', [])
             };
             $timeout();
           },
+
           function (error) {
+            showWait ("hide");
             popAlert(error, "Message");
           }
         );
@@ -84,6 +93,9 @@ angular.module('controllers', [])
         db("Resource controller: resource count = " + data.length);
         $scope.resources = data;
         $timeout(); // update view
+      },
+      function (error) {
+        popAlert (error);
       }
     );
   })
@@ -241,6 +253,9 @@ angular.module('controllers', [])
           db("Bookings controller: bookings count = " + data.length);
           $scope.bookings = data;
           $timeout(); // update view
+        },
+        function (error) {
+          popAlert (error);
         }
       );
 
@@ -276,10 +291,15 @@ angular.module('controllers', [])
 
     $scope.doRefresh = function () {
       db("Refresh Bookings Tab!");
-      Bookings.refresh().then(function (data) {
-        $scope.bookings = data;
-        $scope.$broadcast("scroll.refreshComplete");
-      });
+      Bookings.refresh().then(
+        function (data) {
+          $scope.bookings = data;
+          $scope.$broadcast("scroll.refreshComplete");
+        },
+        function (error) {
+          popAlert (error);
+        }
+      );
     };
 
   })

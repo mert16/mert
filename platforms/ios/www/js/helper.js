@@ -14,8 +14,8 @@ by:
 // These are std JS functions, non-Angular related
 // In VS Code, type Shift-Opt-F to beautify!
 
-
-gv_Debug = true;
+// global debug on/off switch
+gv_Debug = false;
 
 // use this to print debug messages
 // may be globally switched off using gv_Debug = false above
@@ -109,24 +109,11 @@ function getTodayStr() {
 }
 
 
-// doJSONP with url and returns JSON object
-// URL must contain ?callback=JSON_CALLBACK (DEPRECATED)
-function doJSONP($http, url) {
-  var p = new Promise(function (resolve, reject) {
-    $http.jsonp(url)
-      .success(function (data) {
-        resolve(data);
-      })
-      .error(function (reason) {
-        reject("JSONP ERROR: " + reason);
-      });
-  });
-  return p;
-}
-
 // doJSONP2 with url and returns JSON object
 // URL must contain ?callback=JSON_CALLBACK
-mv_doJSONP2_http = null;
+// doJSONP2 ($http,true) -- to initialise
+// doJSONP2 (url).then () --- to make actual calls
+mv_doJSONP2_http = null;  // module variable required
 function doJSONP2(variant, initFlag) {
   if (initFlag) {
     var $http = variant;
@@ -152,6 +139,7 @@ function doJSONP2(variant, initFlag) {
 }
 
 // get user Token during device registration
+// uses doJSONP2()
 function getUserToken(user,ticket) {
   var whereObj = {
     name: user,
@@ -177,7 +165,8 @@ function getUserToken(user,ticket) {
   return p;
 }
 
-mv_changeView_state = null;
+// can only change to views without url path parameters
+mv_changeView_state = null; // module variable required
 function changeView (variant,initFlag) {
   if (initFlag) {
     var $state = variant;
@@ -188,6 +177,49 @@ function changeView (variant,initFlag) {
   var $state = mv_changeView_state;
   var state = variant; // eg "tab.bookings"
   $state.transitionTo (state);
+}
+
+// vault object to store registered tokens
+// vault ("init",$localStorage) -- to initialise
+// vault ("put",User) -- to store User object with token
+// vault ("get") -- to retrieve User object with token
+mv_storageObject = null; // module var required
+function vault (cmd,arg) {
+  if (cmd == "init") {
+    mv_storageObject = arg; // $localStorage;
+    return;
+  }
+  if (cmd == "put") {
+    if (mv_storageObject == null) return;
+    mv_storageObject.userObj = arg;
+    return;
+  }
+  if (cmd == "get") {
+    if (mv_storageObject == null) return null;
+    if ("userObj" in mv_storageObject) return mv_storageObject.userObj;
+    return null;
+  }
+}
+
+// show waiting message
+// showWait ("init",$ionicLoading) -- to initialise
+// showWait ("visible",msg") -- to show busy "msg"
+// showwait (false) -- to hide busy msg
+mv_waitObject = null; // required
+function showWait (cmd,arg) {
+  if (cmd=="init") {
+    mv_waitObject = arg; // $ionicLoading
+    return;
+  }
+  if (cmd == "visible") {
+    mv_waitObject.show ({
+      template: arg
+    });
+    return;
+  }
+  if (cmd=="hide") {
+    mv_waitObject.hide();
+  }
 }
 
 //alert ("helper.js loaded");
