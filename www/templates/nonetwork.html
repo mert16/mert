@@ -1,0 +1,25 @@
+<ion-view view-title="No Network">
+  <ion-content class="padding">
+
+    <br ng-repeat="i in [1,2,3,4]" />
+
+    <p style='text-align:center;'>
+      This App requires Internet Access.
+    </p>
+
+    <p style='text-align:center;'>
+      Please check your WIFI or 3G Network Settings.
+    </p>
+
+    <p style='text-align:center;'>
+      Click OK to start once the Network is Available.
+    </p>
+
+    <br ng-repeat="i in [1,2]" />
+
+    <p style='text-align:center;'>
+      <button ng-click="restart()"> OK </button>
+    </p>
+
+  </ion-content>
+</ion-view>

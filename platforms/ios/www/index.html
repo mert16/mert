@@ -31,12 +31,20 @@ by:
 
     <script src="js/ngStorage.min.js"></script>
 
+    <!-- third-party ForceNG angular module to interface to Angular web-API -->
+    <script src="lib/forceng.js"></script>
+
+    <!-- ngCordova wrappers must be BEFORE cordova.js -->
+    <script src="lib/ngCordova/dist/ng-cordova.js"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
 
     <!-- your app's js -->
+    <script src="js/md5.js"></script>
+    <script src="js/dbTool.js"></script>
     <script src="js/helper.js"></script>
+    <script src="js/sfHelper.js"></script>
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
     <script src="js/services.js"></script>

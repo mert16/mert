@@ -43,8 +43,12 @@ myservices.factory('User',function () {
 
     setToken: function (t) {
       model.token = t;
-    }
+    },
 
+    reset: function () {
+      model.name = "";
+      model.token = "";
+    }
   };
 
   // export service object globally
@@ -54,7 +58,7 @@ myservices.factory('User',function () {
   return userObj;
 });
 
-myservices.factory('Resources', function (MertServer) {
+myservices.factory('Resources', function (MertServer, User) {
 
   // populate model with some static data
   // initial static model (testdata.js)
@@ -68,9 +72,16 @@ myservices.factory('Resources', function (MertServer) {
   var resourcesObj = {
 
     load: function () {
+
+      // get access token
+      var tkn = User.getToken ();
+
       var p = new Promise(function (resolve, reject) {
+
+        // server URL
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
-        url += "&m=mert_svc&cmd=queryTable&p1=Resources";
+        url += "&m=mert_svc&tkn=" + tkn;
+        url += "&cmd=queryTable&p1=Resources";
         doJSONP2(url).then(
           function (data) {
             db("Loaded resources from MERT server. Count = " + data.length);
@@ -192,7 +203,7 @@ myservices.factory('AvailDates', function () {
 });
 
 // Confirmed Booking Dates
-myservices.factory('Bookings', function ($timeout, MertServer) {
+myservices.factory('Bookings', function ($timeout, MertServer, User) {
 
   // initial static model (testdata.js)
   //var model = gv_Bookings;
@@ -206,8 +217,15 @@ myservices.factory('Bookings', function ($timeout, MertServer) {
 
     load: function () {
       var p = new Promise(function (resolve, reject) {
+
+        // get access token
+        var tkn = User.getToken();
+
+        // server url
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
-        url += "&m=mert_svc&cmd=getBookings&p1=" + getTodayStr();
+        url += "&m=mert_svc&tkn=" + tkn;
+        url += "&cmd=getBookings&p1=" + getTodayStr();
+        
         doJSONP2 (url).then(
           function (data) {
             db("Loaded bookings from MERT server. Count = " + data.length);
@@ -309,6 +327,10 @@ myservices.factory('Bookings', function ($timeout, MertServer) {
           id: id
         }
 
+        // get access token
+        var tkn = User.getToken();
+
+       /* without notification
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
         url += "&m=mert_svc&cmd=delTable&p1=Bookings&p2=" + encodeURIComponent(JSON.stringify(whereObj));
         doJSONP2 (url).then(
@@ -317,9 +339,23 @@ myservices.factory('Bookings', function ($timeout, MertServer) {
             resolve ("OK");
           }
         );
+        */
+
+        // Delete Booking With Email Notification
+        // Note that p1=bookingID, not table. Also no p2
+        var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
+        url += "&m=mert_svc&tkn=" + tkn;
+        url += "&cmd=delBooking&p1=" + whereObj.id;
+        doJSONP2 (url).then(
+          function (data) {
+            db("Delete MERT server booking status is " + data);
+            resolve ("OK");
+          }
+        );
+
       });
       return p;
-    },
+    }, // end delBooking()
 
     // add a new Booking object
     addBooking: function (rid, user, begDate, begTime, endDate, endTime) {
@@ -333,8 +369,13 @@ myservices.factory('Bookings', function ($timeout, MertServer) {
       var vlist = q(rid) + c + q(user) + c + q(begDate) + c + q(begTime) + c
         + q(endDate) + c + q(endTime);
 
+      // get access token
+      var tkn = User.getToken();
+
+      // server url
       var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
-      url += "&m=mert_svc&cmd=addBooking&p1=" + encodeURIComponent(vlist);
+      url += "&m=mert_svc&tkn=" + tkn;
+      url += "&cmd=addBooking&p1=" + encodeURIComponent(vlist);
 
       var p = new Promise(function (resolve, reject) {
         doJSONP2 (url).then(
@@ -360,4 +401,4 @@ myservices.factory('Bookings', function ($timeout, MertServer) {
   return bookingsObj;
 });
 
-//alert ("services.js loaded");
+db ("services.js loaded",0);

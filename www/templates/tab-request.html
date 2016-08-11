@@ -1,29 +1,30 @@
 <ion-view view-title="Requests">
   <ion-content class="padding">
-    <br><br><br>
-    <h2 style='text-align:center'>
-      SalesForce Requests
-    </h2>
-    <br>
-    <br>
-    <p style='text-align:center;'>
-      (For Testing Only. Nothing to do with SF)<br>
-      <select ng-model="user.name">
-        <option>philip</option>
-        <option>david</option>
-        <option>ratheesh</option>
-        <option>francis</option>
-     </select>
-    </p>
-    <p style='text-align:center;'>
-      <button ng-click="showuser()"> Show Who </button>
-    </p>
-    <p style='text-align:center;'>
-      <button ng-click="resetuser()"> Reset User </button>
-    </p>
-    <br><br><br>
-    <p style='text-align:center'>
-      SalesForce Integration PENDING
-    </p>
+    
+    </ion-list>
+
+    <label class="item item-input">
+        <span class="input-label">Requestor Name</span>
+        <input type="text" placeholder="your name" ng-model="assetRequest.Name__c" value=""/>
+      </label>
+
+    <ion-item>
+      <span class="input-label">Request Details</span><br/>
+      <textarea placeholder="Equipment details" ng-model="assetRequest.Message__c" 
+        style="height:{{taHeight}}px; width:100%;">
+      </textarea>
+    </ion-item>
+
+    <ion-item>
+      <button ng-click="sendRequest()"> Send Request </button>
+    </ion-item>
+
+    <!-- uncomment this block if needed for debug use during development -->
+    <!--ion-item>
+      <button ng-click="doTest()"> Test </button>
+    </ion-item-->
+
+    </ion-list>
+
   </ion-content>
 </ion-view>

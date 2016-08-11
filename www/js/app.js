@@ -24,13 +24,17 @@ var today = yy + "-" + prepad((mm + 1), 2) + "-" + prepad(dd, 2);
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('mert', ['ionic', 'controllers', 'services', 'ngStorage'])
+angular.module('mert', ['ionic', 'controllers', 'services', 
+'ngStorage', 'forceng', 'ngCordova'])
 
   .constant("MertServer", "edu.ipg.4u.sg")
 
-  .run(function ($ionicPlatform, $http, $state, $localStorage, $ionicLoading) {
+  .constant("MertVersion", "Mert version 2.5")
 
-    db("App.run()");
+  .run(function ($ionicPlatform, $http, $state, $localStorage, $ionicLoading, force,
+  $timeout) {
+
+    db("App.run()",1);
 
     // init doJSONP2
     doJSONP2($http, true);
@@ -47,8 +51,11 @@ angular.module('mert', ['ionic', 'controllers', 'services', 'ngStorage'])
     // ionic and cordova are ready
     $ionicPlatform.ready(function () {
 
-      db("ionicPlatform ready!");
+      db("ionicPlatform ready in .run!",3);
 
+      // init sfHelper library
+      sfInitUauth (force);
+    
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
       if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
@@ -60,10 +67,22 @@ angular.module('mert', ['ionic', 'controllers', 'services', 'ngStorage'])
         StatusBar.styleDefault();
       }
 
-    });
-  })
+    }); // end $ionicPlatform ready
+
+    // check for network on resuming app
+    $ionicPlatform.on ('resume',function (ev) {
+      db ("Resumed!",1);
+      if (!checkNetworkStatus()) {
+        changeView ("nonetwork");
+        return;
+      }
+    }); // end ionicPlatform on
+
+  }) // end .run()
 
   .config(function ($stateProvider, $urlRouterProvider) {
+
+    db ("App.config()",1);
 
     // Ionic uses AngularUI Router which uses the concept of states
     // Learn more here: https://github.com/angular-ui/ui-router
@@ -76,6 +95,13 @@ angular.module('mert', ['ionic', 'controllers', 'services', 'ngStorage'])
         url: '/init',
         templateUrl: 'templates/init.html',
         controller: 'InitCtrl'
+      })
+
+      // initialisation state for the app
+      .state('nonetwork', {
+        url: '/nonetwork',
+        templateUrl: 'templates/nonetwork.html',
+        controller: 'NoNetworkCtrl'
       })
 
       // setup an abstract state for the tabs directive

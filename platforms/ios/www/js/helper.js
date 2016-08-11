@@ -15,17 +15,17 @@ by:
 // In VS Code, type Shift-Opt-F to beautify!
 
 // global debug on/off switch
-gv_Debug = false;
+//gv_Debug = false;
 
 // use this to print debug messages
 // may be globally switched off using gv_Debug = false above
-function db(m) {
+/* function db(m) {
   if (!gv_Debug) return;
   if (!confirm(m)) {
     gv_Debug = false;
     return;
   }
-}
+}*/
 
 function popAlert(msg, title) {
   if (window.cordova) {
@@ -183,6 +183,7 @@ function changeView (variant,initFlag) {
 // vault ("init",$localStorage) -- to initialise
 // vault ("put",User) -- to store User object with token
 // vault ("get") -- to retrieve User object with token
+// vault ("reset") -- to destroy User object with token
 mv_storageObject = null; // module var required
 function vault (cmd,arg) {
   if (cmd == "init") {
@@ -198,6 +199,11 @@ function vault (cmd,arg) {
     if (mv_storageObject == null) return null;
     if ("userObj" in mv_storageObject) return mv_storageObject.userObj;
     return null;
+  }
+  if (cmd == "reset") {
+    if (mv_storageObject == null) return;
+    delete mv_storageObject.userObj;
+    return;
   }
 }
 
@@ -222,5 +228,61 @@ function showWait (cmd,arg) {
   }
 }
 
-//alert ("helper.js loaded");
+function objectInspector(object, result) {
+  if (typeof object == "string")
+    return object;
+  if (typeof object != "object")
+    return "Invalid object";
+  if (typeof result == "undefined")
+    result = '';
+
+  if (result.length > 50)
+    return "[RECURSION TOO DEEP. ABORTING.]";
+
+  var rows = [];
+  for (var property in object) {
+    var datatype = typeof object[property];
+
+    var tempDescription = result + '"' + property + '"';
+    tempDescription += ' (' + datatype + ') => ';
+    if (datatype == "object")
+      tempDescription += 'object: ' + objectInspector(object[property], result + '  ');
+    else
+      tempDescription += object[property];
+
+    rows.push(tempDescription);
+  }//Close for
+
+  return rows.join(result + "\n");
+} //End objectInspector
+
+
+function checkNetworkStatus(flag) {
+  if (!window.Connection) {
+    db("checkNetworkStatus() usable in device only", 11);
+    return;
+  }
+
+  var type = navigator.connection.type;
+
+  if (typeof flag == "undefined" || flag == "" || flag == false) {
+    if (type == Connection.NONE) return false;
+    return true;
+  }
+
+  var ht = "";
+  if (type == Connection.NONE) ht += "No Connection\n";
+  else if (type == Connection.UNKNOWN) ht += "Unknown Connection\n";
+  else if (type == Connection.ETHERNET) ht += "Ethernet\n";
+  else if (type == Connection.WIFI) ht += "Wifi\n";
+  else if (type == Connection.CELL_2G) ht += "Cell 2G\n";
+  else if (type == Connection.CELL_3G) ht += "Cell 3G\n";
+  else if (type == Connection.CELL_4G) ht += "Cell 4G\n";
+  else if (type == Connection.CELL) ht += "Cellular";
+  else ht += "Type " + type;
+  return ht;
+} // end of checkNetworkStatus()
+
+
+db ("helper.js loaded",0);
 

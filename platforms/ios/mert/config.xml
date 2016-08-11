@@ -23,6 +23,9 @@
     <feature name="Notification">
         <param name="ios-package" value="CDVNotification" />
     </feature>
+    <feature name="NetworkStatus">
+        <param name="ios-package" value="CDVConnection" />
+    </feature>
     <name>mert</name>
     <description>
         An Ionic Framework and Cordova project.
