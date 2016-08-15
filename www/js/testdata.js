@@ -84,4 +84,5 @@ var gv_Resources = [
   { id: 14, name: "LAN Analyser", owner: "Test Lab", image: "" }
 ];
 
-//alert ("testdata.js loaded");
+// check whether loaded
+db ("testdata.js loaded",0);

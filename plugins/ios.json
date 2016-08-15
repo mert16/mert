@@ -75,7 +75,17 @@
         },
         "cordova-plugin-network-information": {
             "PACKAGE_NAME": "com.ionicframework.mert805590"
+        },
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "com.ionicframework.mert805590"
+        },
+        "cordova-plugin-calendar": {
+            "PACKAGE_NAME": "com.ionicframework.mert805590"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "com.ionicframework.mert805590"
+        }
+    }
 }

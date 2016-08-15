@@ -5,17 +5,32 @@ services.js
 (c) Philip Pang, July 2016
 
 Initial codebase written by Philip Pang with enhancements
-by:
-- David Prasad
-- Ratheesh Kumar
+by David Prasad, Ratheesh Kumar where indicated.
+
+I wrote this codebase to support my part of the project, but
+all team members are free to use these services for their parts.
+
+Note to All Team Members:
+- Please fee free to add your Service objects here. 
+- Be sure to tag it with your name, and describe what it does.
+- If you modify another team member's service, please indicate what
+  you have changed.
+- To write your own Service object, you can use the "User" service 
+  as an example. All my service objects are written with this same
+  design pattern.  
 */
 
-
+// declare service module
 myservices = angular.module('services', []);
 
+
+// (written by Philip Pang)
+// This User service stores the registered User name
+// and secret MERT server access token. After app
+// registration, a copy of this object is stored in the secure vault.
 myservices.factory('User',function () {
   var model = {
-    name: "philip",
+    name: "",
     token: ""
   };
 
@@ -58,6 +73,12 @@ myservices.factory('User',function () {
   return userObj;
 });
 
+
+// (by Philip Pang) (used by Ratheesh to display resources)
+// This Resources service is used to interface with the MERT server.
+// It fetches a list of resource names and related information from
+// the server and makes these available to the App. It caches this
+// information and can sync with the latest copy on the MERT server.
 myservices.factory('Resources', function (MertServer, User) {
 
   // populate model with some static data
@@ -148,7 +169,10 @@ myservices.factory('Resources', function (MertServer, User) {
   return resourcesObj;
 });
 
-// Available Booking Dates: stretch for 60 days from current day
+
+// (Philip Pang)
+// This AvailDates service is used to generate Booking dates
+// for the next 60 days from the current day.
 myservices.factory('AvailDates', function () {
 
   // initialise model (empty)
@@ -202,7 +226,12 @@ myservices.factory('AvailDates', function () {
   return availDatesObj;
 });
 
-// Confirmed Booking Dates
+
+// (by Philip Pang) (used by Ratheesh to display booking rate)
+// This Bookings service is used to manage Booking records
+// of resources. It handles add, retrieval, delete of
+// Booking records. It maintains a cache of relevant records
+// from the MERT server and is able to sync with it.
 myservices.factory('Bookings', function ($timeout, MertServer, User) {
 
   // initial static model (testdata.js)
@@ -287,7 +316,7 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
       return null;
     },
 
-    // returns Booking object
+    // returns Booking object by resID, begin Date and Time (if any)
     getBooking: function (resID, begDate, begTime) {
       if (!validflag) return null;
       var begTimeStr = "" + begDate + " " + begTime;
@@ -300,10 +329,52 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
       return null;
     },
 
+    // returns Booking object by booking ID
+    getBookingById: function (bookID) {
+      if (!validflag) return null;
+      for (var i=0; i < model.length; i++) {
+        if (model[i].id == bookID) return model[i];
+      }
+      return null;
+    },
+
     // check whether this is a booking object
     isBooking: function (resID, begDate, begTime) {
       if (this.getBookingID(resID, begDate, begTime) != null) return true;
       return false;
+    },
+
+    // get count of Bookings of a resID on a given day
+    getBookingSlotCount: function (resID, dt) {
+      var cnt = 0;
+      var mins = 0;
+      if (!validflag) return 0;
+      for (var i = 0; i < model.length; i++) {
+        var book = model[i];
+        if (book.res != resID) continue;
+        if (book.begDate == dt && book.endDate == dt) {
+          mins = getTimeDiff (book.begTime,book.endTime);
+          cnt += Math.round (mins/30);    
+        }
+        else if (book.begDate == dt && book.endDate > dt) {
+          mins = getTimeDiff (book.begTime,"2400");
+          cnt += Math.round (mins/30);              
+        }
+        else if (book.begDate < dt && book.endDate == dt) {
+          mins = getTimeDiff ("0000",book.endTime);
+          cnt += Math.round (mins/30);    
+        }
+        else if (book.begDate < dt && book.endDate > dt) {
+          cnt += 48;
+        }
+      }
+      return cnt;
+    },
+
+    getBookingPercent: function (resID, dt) {
+      var cnt = this.getBookingSlotCount (resID, dt);
+      var percent = Math.round (cnt/48*100);
+      return percent;
     },
 
     // delete a booking
@@ -330,7 +401,7 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
         // get access token
         var tkn = User.getToken();
 
-       /* without notification
+       /* without notification (DEPRECATED)
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
         url += "&m=mert_svc&cmd=delTable&p1=Bookings&p2=" + encodeURIComponent(JSON.stringify(whereObj));
         doJSONP2 (url).then(
@@ -401,4 +472,142 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
   return bookingsObj;
 });
 
+// (by Philip Pang) (used in side-menu by David Prasad)
+// This Analytics service is used to track the usage of this
+// App. It monitors when this App is started and activated,
+// and what Views the user vists. These are stored into various
+// counters. The side menu can display the results.
+// The analytics data are persistent. When the App suspends,
+// the counters are written out to a local "analytics.txt" file.
+myservices.factory('Analytics',function () {
+
+  var model = {
+    times: [0,0,0,0,0,0,0,0],
+    visits: {
+      resources: 0,
+      calendar: 0,
+      timeslots: 0,
+      add: 0,
+      info: 0,
+      bookings: 0,
+      request: 0
+    }
+  };
+
+  var timeSegments = [
+    "0000-0300", "0300-0600", "0600-0900", "0900-1200",
+    "1200-1500", "1500-1800", "1800-2100", "2100-2400"
+  ];
+
+  var analyticsObj = {
+
+    getModel: function () {
+      return model;
+    },
+
+    setModel: function (m) {
+      model = m;
+    },
+
+    getVisits: function () {
+      return model.visits;
+    },
+
+    getTimes: function () {
+      return model.times;
+    },
+
+    merge: function (obj) {
+      for (var i=0; i < model.times.length; i++) {
+        model.times[i] += obj.times[i];
+      }
+      for (var ppty in model.visits) {
+        if (model.visits.hasOwnProperty(ppty)) {
+          model.visits[ppty] += obj.visits[ppty];
+        }
+      }          
+    },
+
+    log: function (vw) {
+
+      if (vw == "time") {
+        var now = getTimeStr();
+        if (now >= 0000 && now < 0300) model.times[0]++;
+        if (now >= 0300 && now < 0600) model.times[1]++;
+        if (now >= 0600 && now < 0900) model.times[2]++;
+        if (now >= 0900 && now < 1200) model.times[3]++;
+        if (now >= 1200 && now < 1500) model.times[4]++;
+        if (now >= 1500 && now < 1800) model.times[5]++;
+        if (now >= 1800 && now < 2100) model.times[6]++;
+        if (now >= 2100 && now < 2400) model.times[7]++;        
+        return;
+      }
+
+      switch (vw) {
+        case "resources": model.visits.resources++; break;
+        case "calendar": model.visits.calendar++; break;
+        case "timeslots": model.visits.timeslots++; break;
+        case "add": model.visits.add++; break;
+        case "info": model.visits.info++; break;
+        case "bookings": model.visits.bookings++; break;
+        case "request": model.visits.request++; break;
+      }
+    },
+
+    getReport: function (nl) {
+      if (typeof nl == "undefined") nl = "\n";
+      var ht = "";
+
+      var timesTotal = 0;
+      for (var i=0; i < model.times.length; i++) {
+        timesTotal += model.times[i];
+      }
+
+      var visitsTotal = 0;
+      for (var ppty in model.visits) {
+        if (model.visits.hasOwnProperty(ppty)) visitsTotal += model.visits[ppty];
+      }
+
+      ht += "Visits" + nl;
+      for (var ppty in model.visits) {
+        if (model.visits.hasOwnProperty(ppty)) {
+          ht += ppty + ":" + model.visits[ppty];
+          ht += " (" + percent (model.visits[ppty],visitsTotal) + "%)" + nl;
+        }
+      }
+      ht += "Total Visits: " + visitsTotal + " (100%)" + nl;
+      
+      ht += nl;
+      ht += "Times" + nl;
+      for (var i=0; i < model.times.length; i++) {
+        ht += timeSegments[i] + ":" + model.times[i];
+        ht += " (" + percent (model.times[i],timesTotal) + "%)" + nl;
+      }
+      ht += "Total Times: " + timesTotal + " (100%)"  + nl;
+
+      return ht;
+    },
+
+    reset: function () {
+      model.times = [0,0,0,0,0,0,0,0];
+      model.visits = {
+        reslist: 0,
+        calendar: 0,
+        timeslots: 0,
+        add: 0,
+        info: 0,
+        bookings: 0,
+        request: 0
+      };
+    }
+  };
+
+  // export service object globally
+  gv_analyticsSvc = analyticsObj;
+
+  // export service object for DI
+  return analyticsObj;
+});
+
+// check whether loaded
 db ("services.js loaded",0);

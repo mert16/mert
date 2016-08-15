@@ -52,6 +52,12 @@
 		75E57707964F44CA857E9F74 /* CDVReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B2B6F6554A764F7DB711ACF3 /* CDVReachability.m */; };
 		31837BF0434F4A8C8F513083 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2685D54D7C7841BFA9A68E18 /* SystemConfiguration.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5F7A4192D23449A69939C53B /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2646212B27054AF2A61FC2C1 /* CoreTelephony.framework */; };
+		042A97C7BF4B400BA38083A4 /* CDVFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A2C3B2181F848E7AC12256F /* CDVFile.m */; };
+		DD3F6E54B42C49B8BE3D1F54 /* CDVLocalFilesystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1514CD7E853B4F48A75D7B70 /* CDVLocalFilesystem.m */; };
+		96D5D7A25E92497193BC0331 /* CDVAssetLibraryFilesystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 651E7A6ACE424551905ED3EF /* CDVAssetLibraryFilesystem.m */; };
+		6016B031CE394A2BAA069499 /* Calendar.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F647C36AA894F44ADA62567 /* Calendar.m */; };
+		407B2A8A1C664F7BAA5D1E77 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 748494A60AA4411BB873CF12 /* EventKit.framework */; };
+		6D35B460255B4C429CA6934A /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3449C1854B9A4472BE1F5461 /* EventKitUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +145,16 @@
 		65A3B48E0D3943A79E2213D1 /* CDVReachability.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVReachability.h"; path = "cordova-plugin-network-information/CDVReachability.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		2685D54D7C7841BFA9A68E18 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "SystemConfiguration.framework"; path = "System/Library/Frameworks/SystemConfiguration.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 		2646212B27054AF2A61FC2C1 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "CoreTelephony.framework"; path = "System/Library/Frameworks/CoreTelephony.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		3A2C3B2181F848E7AC12256F /* CDVFile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVFile.m"; path = "cordova-plugin-file/CDVFile.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		1514CD7E853B4F48A75D7B70 /* CDVLocalFilesystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVLocalFilesystem.m"; path = "cordova-plugin-file/CDVLocalFilesystem.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		651E7A6ACE424551905ED3EF /* CDVAssetLibraryFilesystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVAssetLibraryFilesystem.m"; path = "cordova-plugin-file/CDVAssetLibraryFilesystem.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		BB663B011DA3462AAF7B5E87 /* CDVFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVFile.h"; path = "cordova-plugin-file/CDVFile.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		69AA267CCE2F432FB8A83539 /* CDVLocalFilesystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVLocalFilesystem.h"; path = "cordova-plugin-file/CDVLocalFilesystem.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		14F49F6CF1754D54B427CEDC /* CDVAssetLibraryFilesystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVAssetLibraryFilesystem.h"; path = "cordova-plugin-file/CDVAssetLibraryFilesystem.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		4F647C36AA894F44ADA62567 /* Calendar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "Calendar.m"; path = "cordova-plugin-calendar/Calendar.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		F9E35EB047BD45069AE5A992 /* Calendar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Calendar.h"; path = "cordova-plugin-calendar/Calendar.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		748494A60AA4411BB873CF12 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "EventKit.framework"; path = "System/Library/Frameworks/EventKit.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		3449C1854B9A4472BE1F5461 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "EventKitUI.framework"; path = "System/Library/Frameworks/EventKitUI.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +169,8 @@
 				7F0B767A172449CB9B8D5E7D /* AudioToolbox.framework in Frameworks */,
 				31837BF0434F4A8C8F513083 /* SystemConfiguration.framework in Frameworks */,
 				5F7A4192D23449A69939C53B /* CoreTelephony.framework in Frameworks */,
+				407B2A8A1C664F7BAA5D1E77 /* EventKit.framework in Frameworks */,
+				6D35B460255B4C429CA6934A /* EventKitUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +247,8 @@
 				41E4EB6FCCEE4E2EA2E4DFED /* AudioToolbox.framework */,
 				2685D54D7C7841BFA9A68E18 /* SystemConfiguration.framework */,
 				2646212B27054AF2A61FC2C1 /* CoreTelephony.framework */,
+				748494A60AA4411BB873CF12 /* EventKit.framework */,
+				3449C1854B9A4472BE1F5461 /* EventKitUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -262,6 +282,14 @@
 				B2B6F6554A764F7DB711ACF3 /* CDVReachability.m */,
 				9F6B5A3927E94358818FDBAE /* CDVConnection.h */,
 				65A3B48E0D3943A79E2213D1 /* CDVReachability.h */,
+				3A2C3B2181F848E7AC12256F /* CDVFile.m */,
+				1514CD7E853B4F48A75D7B70 /* CDVLocalFilesystem.m */,
+				651E7A6ACE424551905ED3EF /* CDVAssetLibraryFilesystem.m */,
+				BB663B011DA3462AAF7B5E87 /* CDVFile.h */,
+				69AA267CCE2F432FB8A83539 /* CDVLocalFilesystem.h */,
+				14F49F6CF1754D54B427CEDC /* CDVAssetLibraryFilesystem.h */,
+				4F647C36AA894F44ADA62567 /* Calendar.m */,
+				F9E35EB047BD45069AE5A992 /* Calendar.h */,
 			);
 			name = Plugins;
 			path = "mert/Plugins";
@@ -456,6 +484,10 @@
 				B1F81B82174E43A6BE231571 /* CDVNotification.m in Sources */,
 				31FB1F20B29F45569442FF64 /* CDVConnection.m in Sources */,
 				75E57707964F44CA857E9F74 /* CDVReachability.m in Sources */,
+				042A97C7BF4B400BA38083A4 /* CDVFile.m in Sources */,
+				DD3F6E54B42C49B8BE3D1F54 /* CDVLocalFilesystem.m in Sources */,
+				96D5D7A25E92497193BC0331 /* CDVAssetLibraryFilesystem.m in Sources */,
+				6016B031CE394A2BAA069499 /* Calendar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

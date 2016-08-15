@@ -12,9 +12,30 @@ by:
 
 angular.module('controllers', [])
 
-  // controller for "Home tab" view"
-  .controller('InitCtrl', function ($scope, $timeout, User,
-    MertVersion, $ionicPlatform, $cordovaNetwork) {
+  // Tabs controller controls tabs and side menu
+  .controller('TabsCtrl', function ($scope, $ionicHistory, User, MertVersion, Analytics) {
+
+    $scope.user = User.getName();
+
+    $scope.showAbout = function () {
+      var ht = MertVersion + "\n(c)Aug 2016\n\nPhilip Pang\nDavid Prasad\nRatheesh Kumar";
+      popAlert(ht, "About");
+    };
+
+    $scope.showAnalytics = function () {
+      popAlert(Analytics.getReport(), "Analytics");
+    };
+
+    $scope.showTutorial = function () {
+      changeView("init");
+    };
+
+  })
+
+  // controller for "Init" view (for App Registration only)
+  .controller('InitCtrl', function ($scope, $ionicHistory, $timeout, User,
+    MertVersion, $ionicPlatform, $cordovaNetwork,
+    $ionicSlideBoxDelegate, Analytics) {
 
     db("InitCtrl", 2);
 
@@ -24,21 +45,53 @@ angular.module('controllers', [])
 
       $ionicPlatform.ready(function () {
 
-        db("ionicPlatform ready in InitCtrl",3);
+        db("ionicPlatform ready in InitCtrl", 3);
 
+        // Network Avail Check - philip 
         if (!checkNetworkStatus()) {
-          db ("No network on startup!",5);
-          changeView ("nonetwork");
+          db("No network on startup!", 5);
+          changeView("nonetwork");
           return;
         }
+
+        // for start button in tutorial sub-view
+        $scope.start = function () {
+          changeView (null,"setTutorialMode");
+          $ionicHistory.clearHistory();
+          changeView("tab.resources");
+        };
+
+        // show tutorial if already registered
+        if (changeView(null,"getTutorialMode") == true) {
+          $scope.subview = {
+            register: false,
+            tutorial: true,
+            title: "Tutorial"
+          };
+          $timeout();
+          return;
+        }
+
+        // log app launch time
+        Analytics.log("time");
+
+        fileHelper("read", "analytics.txt").then(
+          function (data) {
+            var analyticsObjSaved = JSON.parse(data);
+            Analytics.merge(analyticsObjSaved);
+          },
+          function (error) {
+            //db(error, 99);
+            // do nothing if no analytics file
+          }
+        );
 
         var userObj = vault("get");
 
         if (userObj != null) {
-          db("Found user! user/token is " + userObj.name + " / " +
-            userObj.token);
+          db("Found user! user/token is " + userObj.name + " / " + userObj.token, 2);
           User.setModel(userObj);
-          changeView("tab.resources");
+          $scope.start ();
           return;
         }
 
@@ -59,11 +112,10 @@ angular.module('controllers', [])
 
         $scope.registerUser = function () {
 
-          var tkt = prompt("Enter ticket for this user", "one");
+          var tkt = User.getToken();
+          showWait("visible", "Registering User: " + $scope.user.name);
 
-          showWait("visible", "Registering");
-
-          getUserToken(User.getName(), tkt).then(
+          getUserToken(User.getName().toLowerCase(), tkt).then(
             function (token) {
 
               showWait("hide");
@@ -91,16 +143,15 @@ angular.module('controllers', [])
           );
         }; // end of $scope.registerUser()
 
-        // for start button in tutorial sub-view
-        $scope.start = function () {
-          changeView("tab.resources");
+        // for next slide in tutorial sub-view (david)
+        $scope.nextSlide = function () {
+          $ionicSlideBoxDelegate.next();
         };
 
       }); // end of $ionicPlatform.ready()
 
     }); // end of $scope.$on ()
   })  // end of .controller - Init
-
 
   // controller for "no network" message (transient)
   .controller('NoNetworkCtrl', function ($scope, $timeout, $ionicNavBarDelegate) {
@@ -111,7 +162,7 @@ angular.module('controllers', [])
     });
 
     $scope.restart = function () {
-      db("restart!",4);
+      db("restart!", 4);
       if (!checkNetworkStatus()) {
         popAlert("Sorry, Internet is still not available", "Message");
         return;
@@ -125,8 +176,16 @@ angular.module('controllers', [])
 
 
   // controller for "Resources tab" view
-  .controller('ResourceCtrl', function ($scope, $timeout, Resources) {
-    db("ResourceCtrl",2);
+  .controller('ResourceCtrl', function ($scope, $timeout, Resources,
+    MertServer, Analytics) {
+
+    db("ResourceCtrl", 2);
+
+    $scope.MertServer = MertServer;
+
+    $scope.$on('$ionicView.enter', function (e) {
+      Analytics.log("resources");
+    });
 
     Resources.getModel().then(
       function (data) {
@@ -140,7 +199,7 @@ angular.module('controllers', [])
     );
 
     $scope.doRefresh = function () {
-      db("Refresh Resources Tab!",2);
+      db("Refresh Resources Tab!", 2);
       Resources.refresh().then(
         function (data) {
           $scope.bookings = data;
@@ -156,23 +215,54 @@ angular.module('controllers', [])
 
   // controller for "Resources tab > Bookings" view
   .controller('ResourceBookingCtrl', function ($scope, $stateParams, $timeout,
-    Resources, AvailDates, MertServer) {
+    Resources, AvailDates, MertServer, Bookings, Analytics) {
 
-    db("ResourceBookingCtrl resID " + $stateParams.resID,2);
+    db("ResourceBookingCtrl resID " + $stateParams.resID, 2);
+
+    $scope.$on('$ionicView.enter', function (e) {
+      Analytics.log("calendar");
+    });
 
     $scope.res = Resources.get($stateParams.resID);
 
     $scope.dates = AvailDates.getModel();
 
     $scope.MertServer = MertServer;
+
+    // load Bookings array as necessary
+    Bookings.getModel();
+
+    $scope.isNonZero = function (n) {
+      if (n != 0) return true;
+      return false;
+    };
+
+    $scope.getbookingcount = function (rid, dt) {
+      db("Get booking count for res " + rid + " on " + dt, 2);
+      var cnt = Bookings.getBookingSlotCount(rid, dt);
+      return cnt;
+    };
+
+    $scope.getbookingpercent = function (rid, dt) {
+      db("Get booking percentage for res " + rid + " on " + dt, 2);
+      var pcArr = [];
+      pcArr[0] = Bookings.getBookingPercent(rid, dt);
+      pcArr[1] = 100 - pcArr[0];
+      return pcArr;
+    };
+
   }) // end of .controller - ResourceBooking
 
 
   // controller for "Resources tab > Bookings > Selected Date" view
   .controller('ResourceTimeslotCtrl', function ($scope, $stateParams, $timeout,
-    Resources, Bookings, User) {
+    Resources, Bookings, User, Analytics) {
 
-    db("ResourceTimeslotCtrl",2);
+    db("ResourceTimeslotCtrl", 2);
+
+    $scope.$on('$ionicView.enter', function (e) {
+      Analytics.log("timeslots");
+    });
 
     // load Bookings array as necessary
     Bookings.getModel();
@@ -203,13 +293,35 @@ angular.module('controllers', [])
     };
 
     $scope.delbooking = function (id) {
-      db("Delete booking ID " + id,2);
+      db("Delete booking ID " + id, 2);
+
+      // get booking object before deleting it
+      var bookObj = Bookings.getBookingById(id);
+
       Bookings.delBooking(id).then(
         function (status) {
+
           Bookings.refresh().then(
             function (data) {
               //$scope.bookings = data;
               $timeout();
+            }
+          );
+
+          var d1Obj = explodeDateTime(bookObj.begDate + " " + bookObj.begTime);
+          var d2Obj = explodeDateTime(bookObj.endDate + " " + bookObj.endTime);
+
+          var delOpts = {
+            startDate: new Date(d1Obj.yy, d1Obj.mo - 1, d1Obj.dd, d1Obj.hh, d1Obj.mm, 0, 0),
+            endDate: new Date(d2Obj.yy, d2Obj.mo - 1, d2Obj.dd, d2Obj.hh, d2Obj.mm, 0, 0)
+          };
+
+          calHelper("delete", delOpts).then(
+            function (success) {
+              popAlert("Calendar event deleted", "Message");
+            },
+            function (error) {
+              popAlert(error, "Error");
             }
           );
         }
@@ -230,9 +342,15 @@ angular.module('controllers', [])
 
   // controller for "Resources tab > Bookings > Selected Date > Add" view
   .controller('ResourceAddbookingCtrl', function ($scope, $stateParams, $timeout, $ionicHistory,
-    Resources, Bookings, User) {
+    Resources, Bookings, User, Analytics, MertServer) {
 
-    db("ResourceAddBookingCtrl",2);
+    db("ResourceAddBookingCtrl", 2);
+
+    $scope.MertServer = MertServer;
+
+    $scope.$on('$ionicView.enter', function (e) {
+      Analytics.log("add");
+    });
 
     // load Bookings array as necessary
     Bookings.getModel();
@@ -261,15 +379,37 @@ angular.module('controllers', [])
       Bookings.addBooking($scope.res.id, $scope.user.name, $scope.begin.date, $scope.begin.time,
         $scope.end.date, $scope.end.time).then(
         function (data) {
+
           Bookings.refresh().then(
             function (status) {
-              db("Go back to prev view",2);
+              db("Go back to prev view", 2);
               $ionicHistory.goBack(-1);
             }
           );
+
+          var d1Obj = explodeDateTime($scope.begin.date + " " + $scope.begin.time);
+          var d2Obj = explodeDateTime($scope.end.date + " " + $scope.end.time);
+
+          var addOpts = {
+            title: $scope.res.name + " booking",
+            location: "MERT",
+            notes: "",
+            startDate: new Date(d1Obj.yy, d1Obj.mo - 1, d1Obj.dd, d1Obj.hh, d1Obj.mm, 0, 0),
+            endDate: new Date(d2Obj.yy, d2Obj.mo - 1, d2Obj.dd, d2Obj.hh, d2Obj.mm, 0, 0)
+          };
+
+          calHelper("add", addOpts).then(
+            function (success) {
+              popAlert("Calendar event added", "Message");
+            },
+            function (error) {
+              popAlert(error, "Error");
+            }
+          );
+
         },
         function (reason) {
-          popAlert(reason);
+          popAlert(reason, "Error");
         }
         );
     };
@@ -278,9 +418,13 @@ angular.module('controllers', [])
 
   // controller for "Resources tab > Bookings > Info" view
   .controller('ResourceInfoCtrl', function ($scope, $stateParams, $timeout,
-    Resources, MertServer) {
+    Resources, MertServer, Analytics) {
 
-    db("ResourceInfoCtrl resID " + $stateParams.resID,2);
+    db("ResourceInfoCtrl resID " + $stateParams.resID, 2);
+
+    $scope.$on('$ionicView.enter', function (e) {
+      Analytics.log("info");
+    });
 
     var resObj = Resources.get($stateParams.resID);
     $scope.res = resObj;
@@ -294,11 +438,13 @@ angular.module('controllers', [])
 
   // controller for "Bookings tab" view
   .controller('BookingsCtrl', function ($scope, $timeout,
-    Bookings, Resources, User) {
+    Bookings, Resources, User, Analytics) {
 
-    db("BookingsCtrl",2);
+    db("BookingsCtrl", 2);
 
     $scope.$on('$ionicView.enter', function (e) {
+
+      Analytics.log("bookings");
 
       // get Bookings Data and make available to the view
       Bookings.getModel().then(
@@ -329,21 +475,44 @@ angular.module('controllers', [])
     };
 
     $scope.delbookingByID = function (id) {
-      db("Delete booking ID " + id,2);
+      db("Delete booking ID " + id, 2);
+
+      // get booking object before deleting it
+      var bookObj = Bookings.getBookingById(id);
+
       Bookings.delBooking(id).then(
         function (status) {
+
           Bookings.refresh().then(
             function (data) {
               $scope.bookings = data;
               $timeout();
             }
           );
+
+          var d1Obj = explodeDateTime(bookObj.begDate + " " + bookObj.begTime);
+          var d2Obj = explodeDateTime(bookObj.endDate + " " + bookObj.endTime);
+
+          var delOpts = {
+            startDate: new Date(d1Obj.yy, d1Obj.mo - 1, d1Obj.dd, d1Obj.hh, d1Obj.mm, 0, 0),
+            endDate: new Date(d2Obj.yy, d2Obj.mo - 1, d2Obj.dd, d2Obj.hh, d2Obj.mm, 0, 0)
+          };
+
+          calHelper("delete", delOpts).then(
+            function (success) {
+              popAlert("Calendar event deleted", "Message");
+            },
+            function (error) {
+              popAlert(error, "Error");
+            }
+          );
+
         }
       );
     };
 
     $scope.doRefresh = function () {
-      db("Refresh Bookings Tab!",2);
+      db("Refresh Bookings Tab!", 2);
       Bookings.refresh().then(
         function (data) {
           $scope.bookings = data;
@@ -359,11 +528,23 @@ angular.module('controllers', [])
 
 
   // controller for "Request tab" view"
-  .controller('RequestCtrl', function ($scope, $localStorage, $window, User, MertVersion) {
-    db("RequestCtrl",2);
+  .controller('RequestCtrl', function ($scope, $timeout, $window, User,
+    MertVersion, Analytics) {
+
+    db("RequestCtrl", 2);
+
+    angular.element($window).bind("resize", function () {
+      var wh = $window.innerHeight;
+      $scope.taHeight = wh - 360; // -60
+      $timeout();
+    });
+
+    $scope.$on('$ionicView.enter', function (e) {
+      Analytics.log("request");
+    });
 
     var wh = $window.innerHeight;
-    $scope.taHeight = wh - 330; // - 60;
+    $scope.taHeight = wh - 360; // - 60;
 
     $scope.mertVersion = MertVersion;
 
@@ -376,8 +557,7 @@ angular.module('controllers', [])
 
     $scope.sendRequest = function () {
 
-      //db ("sendRequest",11);
-      //return;
+      db("sendRequest", 2);
 
       var n = $scope.assetRequest.Name__c;
       var m = $scope.assetRequest.Message__c;
@@ -416,6 +596,15 @@ angular.module('controllers', [])
         return;
       }
 
+      // #show = 7b55b9fa3e10a94166e75a8585945059
+      // remove above comment for production release
+      if (hex_md5(n) == "7b55b9fa3e10a94166e75a8585945059") {
+        var s = Analytics.getReport();
+        popAlert(s, "Analytics");
+        $scope.assetRequest.Name__c = User.getName();
+        return;
+      }
+
       if (m == "") {
         popAlert("Request Details are required");
         return;
@@ -424,20 +613,25 @@ angular.module('controllers', [])
       db("Name " + n + "\nMsg " + m, 11);
 
       var tkn = User.getToken();
-      sfSetUauthUser ("mert_" + tkn);
+      sfSetUauthUser("mert_" + tkn);
 
       showWait("visible", "Sending Asset Request");
 
+      // create Asset Request record on SF
+      // (request for connection token as necessary)
       sfCreate('Asset_Request__c', $scope.assetRequest).then(
         function (data) {
           showWait("hide");
-          popAlert("Request sent. Thank you.");
+          popAlert("Request sent. Thank you.", "Confirmation");
         },
         function (error) {
           showWait("hide");
-          popAlert(error);
+          popAlert(error, "Error");
         }
       ); // end of sfCreate()
+
+      // disconnect from SF by discarding token
+      sfDisconnect();
 
     }; //end of $scope.sendRequest()
 
@@ -445,10 +639,11 @@ angular.module('controllers', [])
     $scope.doTest = function () {
 
       db("doTest", 11);
-      popAlert (checkNetworkStatus("info"));
+      popAlert(checkNetworkStatus("info"));
 
     }; // end of $scope.doTest()
 
   }); // end of .controller() - Request
 
+// check whether loaded
 db("controllers.js loaded", 0);

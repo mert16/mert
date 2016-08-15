@@ -1,4 +1,20 @@
 /* sfHelper.js (Salesforce Helper)
+by Philip Pang (c) Aug 2016
+
+DESCRIPTION
+This is a wrapper for ForceNG service. CRUD functions (eg sfCreate(), sfDelete(), sfQuery(), 
+sfUpdate()) can be conveniently called when needed. Each of these will internally attempt
+to connect to the Salesforce website  if there is no existing connection.
+
+This wrapper also implements two methods of logging in to the SalesForce server:
+OAuth2 and User/Password Flow. sfInitUauth() and sfInitOauth() must be initially
+called in App.run() before using the methods in this wrapper library.
+
+I wrote this library for my NYP MERT Mobile Project. It is used in the Send Asset Request
+function of the App.
+
+You may use this library for your project so long as this entire header comments
+are left intact and the source of the code is acknowledged.
 
 DEPENDENCIES
 - use only in Angular framework
@@ -243,6 +259,15 @@ function sfConnect() {
   return p;
 }
 
+// This is the logical opposite of sfConnect()
+// After this is called, it will be necessary to
+// reconnect using sfConnect() 
+function sfDisconnect () {
+  var force = mv_sfForceObject;
+  force.discardToken ();
+  mv_sfSvcReadyFlag = false;
+}
+
 // returns Promise object. Resolver gets "OK" string.
 // Error function gets "ERROR: xxxxx" string
 function sfCreate(table, objRec) {
@@ -420,4 +445,5 @@ function sfUpdate (table,objRec) {
   return p;
 }
 
+// check whether loaded
 db("sfHelper loaded ok",0);

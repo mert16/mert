@@ -24,17 +24,17 @@ var today = yy + "-" + prepad((mm + 1), 2) + "-" + prepad(dd, 2);
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('mert', ['ionic', 'controllers', 'services', 
-'ngStorage', 'forceng', 'ngCordova'])
+angular.module('mert', ['ionic', 'controllers', 'services',
+  'ngStorage', 'forceng', 'ngCordova'])
 
   .constant("MertServer", "edu.ipg.4u.sg")
 
-  .constant("MertVersion", "Mert version 2.5")
+  .constant("MertVersion", "Mert version 2.8")
 
   .run(function ($ionicPlatform, $http, $state, $localStorage, $ionicLoading, force,
-  $timeout) {
+    $timeout, Analytics, $cordovaFile, $cordovaCalendar) {
 
-    db("App.run()",1);
+    db("App.run()", 1);
 
     // init doJSONP2
     doJSONP2($http, true);
@@ -43,19 +43,25 @@ angular.module('mert', ['ionic', 'controllers', 'services',
     vault("init", $localStorage);
 
     // init changeView
-    changeView($state, true);
+    changeView($state, "init");
 
     // initi showWait
-    showWait ("init", $ionicLoading);
+    showWait("init", $ionicLoading);
 
     // ionic and cordova are ready
     $ionicPlatform.ready(function () {
 
-      db("ionicPlatform ready in .run!",3);
+      db("ionicPlatform ready in .run!", 3);
 
       // init sfHelper library
-      sfInitUauth (force);
-    
+      sfInitUauth(force);
+
+      // init fileHelper
+      fileHelper("init", $cordovaFile);
+
+      // init calendar
+      calHelper ("init",$cordovaCalendar);
+
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
       if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
@@ -69,20 +75,30 @@ angular.module('mert', ['ionic', 'controllers', 'services',
 
     }); // end $ionicPlatform ready
 
+
     // check for network on resuming app
-    $ionicPlatform.on ('resume',function (ev) {
-      db ("Resumed!",1);
+    $ionicPlatform.on('resume', function (ev) {
+      db("Resumed!", 1);
+      Analytics.log("time");
+
       if (!checkNetworkStatus()) {
-        changeView ("nonetwork");
+        changeView("nonetwork");
         return;
       }
-    }); // end ionicPlatform on
+    }); // end ionicPlatform on resume
+
+
+    // save analytics data on App suspending
+    $ionicPlatform.on('pause', function (ev) {
+      var analyticsObj = Analytics.getModel ();
+      fileHelper("write", "analytics.txt", JSON.stringify(analyticsObj));
+    }); // end ionicPlatform on pause
 
   }) // end .run()
 
   .config(function ($stateProvider, $urlRouterProvider) {
 
-    db ("App.config()",1);
+    db("App.config()", 1);
 
     // Ionic uses AngularUI Router which uses the concept of states
     // Learn more here: https://github.com/angular-ui/ui-router
@@ -108,7 +124,8 @@ angular.module('mert', ['ionic', 'controllers', 'services',
       .state('tab', {
         url: '/tab',
         abstract: true,
-        templateUrl: 'templates/tabs.html'
+        templateUrl: 'templates/tabs.html',
+        controller: 'TabsCtrl'      
       })
 
       // Each tab has its own nav history stack:
@@ -193,4 +210,5 @@ angular.module('mert', ['ionic', 'controllers', 'services',
 
   });
 
-//alert("app.js loaded");
+// check whether loaded
+db ("app.js loaded",0);

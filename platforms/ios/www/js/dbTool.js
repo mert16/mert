@@ -7,19 +7,23 @@ this notice to be retained in any project that uses this file.
 
 Let this be the first js file to be sourced!
 
+Note to All Team Members: do NOT modify this code. It has nothing to do with
+the MERT project. But you are free to use db() and objectInspector() to
+troubleshoot your codes duirng development.
+
 Usage:
 
-db ("debug message", msgTag) or db ("debug message");
+db ("debug message", tagNum) or db ("debug message");
 
 Embed above line in various parts of your code to be debugged.
-When execution reach the line, the "debug message" will popup
+When execution reaches the line, the "debug message" will popup
 with Ok and Cancel buttons. If you click Ok, execution will continue
 to the next db("...",tagNum) line. If you click Cancel, execution will
 also continue. But at the next db(...) line, no message will show if its
 tagNum matches what was cancelled previously.
 
-To suppress all db() messages, be sure to gv_Debug object such that
-on:false and tagList:""
+To suppress all db() messages, be sure to set gv_Debug object like so
+{on:false,tagList:""}. This is the setting for the App in production run.
 */
 
 // detect full range of browsers
@@ -44,7 +48,7 @@ if ((is_chrome)&&(is_opera)) {is_chrome=false;}
 // 99 adhoc use
 gv_Debug = {
   on: false,
-  tagList: "" //0,1,2,3,4,5,10,11,99"
+  tagList: "" //0,1,2,3" // "0,1,2,3,4,5,10,11,99"
 }
 
 // use this to print debug messages
@@ -89,5 +93,35 @@ function dbPrompt(m, d) {
   return a;
 }
 
+// inspects a JS variable and returns a string showing object graph
+function objectInspector(object, result) {
+  if (typeof object == "string")
+    return object;
+  if (typeof object != "object")
+    return "Invalid object";
+  if (typeof result == "undefined")
+    result = '';
+
+  if (result.length > 50)
+    return "[RECURSION TOO DEEP. ABORTING.]";
+
+  var rows = [];
+  for (var property in object) {
+    var datatype = typeof object[property];
+
+    var tempDescription = result + '"' + property + '"';
+    tempDescription += ' (' + datatype + ') => ';
+    if (datatype == "object")
+      tempDescription += 'object: ' + objectInspector(object[property], result + '  ');
+    else
+      tempDescription += object[property];
+
+    rows.push(tempDescription);
+  }//Close for
+
+  return rows.join(result + "\n");
+} //End objectInspector
+
+// check whether loaded
 db ("dbTool.js loaded",0);
 

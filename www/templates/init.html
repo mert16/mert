@@ -2,51 +2,95 @@
   <ion-content class="padding">
 
     <div ng-if="subview.register">
+
       <br><br><br>
       <h2 style='text-align:center'>
         {{mertVersion}}
       </h2>
       <p style='text-align:center'>
-        Registration Page
+        One Time Registration
       </p>
       <br>
       <br>
-      <p style='text-align:center;'>
-        <select ng-model="user.name">
-        <option>philip</option>
-        <option>david</option>
-        <option>ratheesh</option>
-        <option>francis</option>
-     </select>
-      </p>
-      <br>
-      <br>
-      <p style='text-align:center;'>
-        <button ng-click="showuser()"> Show Who </button>
-      </p>
-      <p style='text-align:center;'>
-        <button ng-click="registerUser()"> Register </button>
-      </p>
-    </div>
 
+      <form ng-submit="registerUser()">
+        <div class="list">
+          <label class="item item-input">
+          <span class="input-label">Username  </span>
+          <input type="text" placeholder="Name" ng-model="user.name">
+        </label>
+          <label class="item item-input">
+          <span class="input-label">Ticket</span>
+          <input type="password" placeholder="Ticket issued by IT" ng-model="user.token">
+        </label>
+          <label class="item">
+          <button class="button button-block button-positive" type="submit">Register</button>
+        </label>
+        </div>
+      </form>
+
+    </div><!-- end of subview.register -->
 
     <div ng-if="subview.tutorial">
-      <br><br><br>
-      <h2 style='text-align:center'>
-        {{mertVersion}}
-      </h2>
+
+      <h4 style='text-align:center'>
+        Thanks for choosing the MERT App
+      </h4>
+
       <p style='text-align:center'>
-        Once Only Tutorial Page
+        We've worked super hard to make you happy.
       </p>
       <br>
+
+      <ion-slide-box>
+        <ion-slide>
+          <div class="box 1">
+            <p style='text-align:center'>
+              <img src="img/adam.jpg" alt="Adam" style="height:300px; display:block; margin:0 auto;" />
+            </p>
+            <br><br>
+          </div>
+        </ion-slide>
+        <ion-slide>
+          <div class="box 2">
+            <p style='text-align:center'>
+              <img src="img/mike.png" alt="Mike" style="height:300px; display:block; margin:0 auto;" />
+            </p>
+          </div>
+        </ion-slide>
+        <ion-slide>
+          <div class="box 3">
+            <p style='text-align:center'>
+              <img src="img/ben.png" alt="Ben" style="height:300px; display:block; margin:0 auto;" />
+            </p>
+          </div>
+        </ion-slide>
+        <ion-slide>
+          <div class="box 4">
+            <p style='text-align:center'>
+              <img src="img/max.png" alt="Max" style="height:300px; display:block; margin:0 auto;" />
+            </p>
+          </div>
+        </ion-slide>
+        <ion-slide>
+          <div class="box 5">
+            <p style='text-align:center'>
+              <img src="img/perry.png" alt="Perry" style="height:300px; display:block; margin:0 auto;" /> 
+            </p>
+          </div>
+        </ion-slide>
+      </ion-slide-box>
+      <br>
+
       <p style='text-align:center'>
-        This is how you should use this App!
+        Swipe to learn how to use this App.
       </p>
-      <br><br><br><br>
-      <p style='text-align:center;'>
-        <button ng-click="start()"> Start </button>
+
+      <p style='text-align:center'>
+        <button ng-click="start()" class="button button-block button-positive">Skip Tutorial. Use App!</button>
       </p>
-    </div>
+
+    </div><!-- end of subview.tutorial -->
 
   </ion-content>
 </ion-view>
