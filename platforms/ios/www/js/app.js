@@ -29,12 +29,14 @@ angular.module('mert', ['ionic', 'controllers', 'services',
 
   .constant("MertServer", "edu.ipg.4u.sg")
 
-  .constant("MertVersion", "Mert version 2.8")
+  .constant("MertVersion", "Mert version 3.0")
 
   .run(function ($ionicPlatform, $http, $state, $localStorage, $ionicLoading, force,
-    $timeout, Analytics, $cordovaFile, $cordovaCalendar) {
+    $timeout, Analytics, $cordovaFile, $cordovaCalendar, $rootScope) {
 
     db("App.run()", 1);
+
+    $rootScope.outerNavBarShow = true;
 
     // init doJSONP2
     doJSONP2($http, true);
@@ -43,7 +45,7 @@ angular.module('mert', ['ionic', 'controllers', 'services',
     vault("init", $localStorage);
 
     // init changeView
-    changeView($state, "init");
+    changeView (null, "initialise", $state, $rootScope);
 
     // initi showWait
     showWait("init", $ionicLoading);
@@ -80,11 +82,6 @@ angular.module('mert', ['ionic', 'controllers', 'services',
     $ionicPlatform.on('resume', function (ev) {
       db("Resumed!", 1);
       Analytics.log("time");
-
-      if (!checkNetworkStatus()) {
-        changeView("nonetwork");
-        return;
-      }
     }); // end ionicPlatform on resume
 
 

@@ -1,0 +1,30 @@
+<ion-view view-title="Requests">
+  <ion-content class="padding">
+    
+    </ion-list>
+
+    <label class="item item-input">
+        <span class="input-label">Requestor Name</span>
+        <input type="text" placeholder="your name" ng-model="assetRequest.Name__c" value=""/>
+      </label>
+
+    <ion-item>
+      <span class="input-label">Request Details</span><br/>
+      <textarea placeholder="Equipment details" ng-model="assetRequest.Message__c" 
+        style="height:{{taHeight}}px; width:100%;">
+      </textarea>
+    </ion-item>
+
+    <ion-item class='text-center'>
+      <button ng-click="sendRequest()" class="button button-block button-positive"> Send Request </button>
+    </ion-item>
+
+    <!-- uncomment this block if needed for debug use during development -->
+    <!--ion-item>
+      <button ng-click="doTest()"> Test </button>
+    </ion-item-->
+
+    </ion-list>
+
+  </ion-content>
+</ion-view>

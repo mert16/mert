@@ -100,7 +100,7 @@ function sfGetUauthToken() {
 
     var url = "http://edu.ipg.4u.sg/vpage2.php?callback=JSON_CALLBACK&h=99";
     url += "&m=mert_svc&cmd=sfLogin&user=" + mv_sfUser;
-    doJSONP2 (url).then(
+    doJSONP2 (url, checkNetworkHelper).then(
       function (data) {
         resolve(data);
       },

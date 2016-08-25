@@ -13,7 +13,7 @@ by:
 angular.module('controllers', [])
 
   // Tabs controller controls tabs and side menu
-  .controller('TabsCtrl', function ($scope, $ionicHistory, User, MertVersion, Analytics) {
+  .controller('TabsCtrl', function ($scope, User, MertVersion, Analytics) {
 
     $scope.user = User.getName();
 
@@ -27,6 +27,7 @@ angular.module('controllers', [])
     };
 
     $scope.showTutorial = function () {
+      changeView(null, "setTutorialMode");
       changeView("init");
     };
 
@@ -34,12 +35,16 @@ angular.module('controllers', [])
 
   // controller for "Init" view (for App Registration only)
   .controller('InitCtrl', function ($scope, $ionicHistory, $timeout, User,
-    MertVersion, $ionicPlatform, $cordovaNetwork,
-    $ionicSlideBoxDelegate, Analytics) {
+    MertVersion, $ionicPlatform, $cordovaNetwork, $ionicSlideBoxDelegate,
+    $ionicNavBarDelegate, $window, Analytics, $rootScope) {
 
     db("InitCtrl", 2);
 
     $scope.mertVersion = MertVersion;
+
+    $scope.$on('$ionicView.beforeLeave', function (e) {
+      $rootScope.outerNavBarShow = false;
+    });
 
     $scope.$on('$ionicView.enter', function (e) {
 
@@ -47,23 +52,36 @@ angular.module('controllers', [])
 
         db("ionicPlatform ready in InitCtrl", 3);
 
-        // Network Avail Check - philip 
-        if (!checkNetworkStatus()) {
-          db("No network on startup!", 5);
-          changeView("nonetwork");
-          return;
-        }
+        // Network Avail Check - philip
+        //if (!checkNetworkHelper ()) return;
+        //if (!checkNetworkStatus()) {
+        //  db("No network on startup!", 5);
+        //  changeView("nonetwork");
+        //  return;
+        //}
 
         // for start button in tutorial sub-view
         $scope.start = function () {
-          changeView (null,"setTutorialMode");
+          db("InitCtrl Start clicked", 2);
+          changeView(null, "clearTutorialMode");
           $ionicHistory.clearHistory();
+          $ionicNavBarDelegate.showBackButton(true);
+          $scope.subview = {
+            splash: false,
+            register: false,
+            tutorial: false,
+            title: ""
+          };
+          db("InitCtrl b4 changeView to Resources", 2);
           changeView("tab.resources");
         };
 
         // show tutorial if already registered
-        if (changeView(null,"getTutorialMode") == true) {
+        if (changeView(null, "getTutorialMode") == true) {
+          db("InitCtrl show Tutorial subview next", 2);
+          changeView(null, "clearTutorialMode");
           $scope.subview = {
+            splash: false,
             register: false,
             tutorial: true,
             title: "Tutorial"
@@ -79,9 +97,10 @@ angular.module('controllers', [])
           function (data) {
             var analyticsObjSaved = JSON.parse(data);
             Analytics.merge(analyticsObjSaved);
+            db("Analytics: merged saved data", 70);
           },
           function (error) {
-            //db(error, 99);
+            db (error, 70);
             // do nothing if no analytics file
           }
         );
@@ -91,27 +110,41 @@ angular.module('controllers', [])
         if (userObj != null) {
           db("Found user! user/token is " + userObj.name + " / " + userObj.token, 2);
           User.setModel(userObj);
-          $scope.start ();
+          $scope.start();
           return;
         }
 
-        db("There is no userObj in the vault", 1);
+        db("There is no userObj in the vault", 2);
 
-        // switch to user registration sub-view
+        //var wh = $window.innerHeight;
+        //$scope.imgHeight = wh - 180;
+
+        // switch to splash sub-view
         $scope.subview = {
-          register: true,
+          splash: true,
+          register: false,
           tutorial: false,
-          title: "Registration"
+          title: "Welcome"
         };
 
+        $timeout(function () {
+
+          // switch to user registration sub-view
+          $scope.subview = {
+            splash: false,
+            register: true,
+            tutorial: false,
+            title: "Registration"
+          };
+
+        }, 4000);
+
+        User.reset();
         $scope.user = User.getModel();
-
-        $scope.showuser = function () {
-          popAlert("user is " + User.getName() + " tkn " + User.getToken(), "Alert");
-        };
 
         $scope.registerUser = function () {
 
+          // this is actually a ticket
           var tkt = User.getToken();
           showWait("visible", "Registering User: " + $scope.user.name);
 
@@ -119,8 +152,9 @@ angular.module('controllers', [])
             function (token) {
 
               showWait("hide");
+              $scope.subview.register = false;
 
-              db("Token is " + token);
+              db("Token is " + token, 2);
 
               // update User svc
               User.setToken(token);
@@ -129,6 +163,7 @@ angular.module('controllers', [])
               vault("put", $scope.user);
 
               $scope.subview = {
+                splash: false,
                 register: false,
                 tutorial: true,
                 title: "Tutorial"
@@ -153,8 +188,9 @@ angular.module('controllers', [])
     }); // end of $scope.$on ()
   })  // end of .controller - Init
 
+
   // controller for "no network" message (transient)
-  .controller('NoNetworkCtrl', function ($scope, $timeout, $ionicNavBarDelegate) {
+  .controller('NoNetworkCtrl', function ($scope, $timeout, $ionicNavBarDelegate, $ionicHistory) {
     db("NoNetworkCtrl", 2);
 
     $scope.$on('$ionicView.enter', function (e) {
@@ -169,8 +205,9 @@ angular.module('controllers', [])
       }
 
       //changeView("tab.resources");
+      db("restart b4 changeView to init", 4);
+      $ionicHistory.clearHistory();
       changeView("init");
-      $ionicNavBarDelegate.showBackButton(true);
     };
   }) // end of .controller() - "NoNetwork"
 
@@ -184,19 +221,23 @@ angular.module('controllers', [])
     $scope.MertServer = MertServer;
 
     $scope.$on('$ionicView.enter', function (e) {
-      Analytics.log("resources");
-    });
 
-    Resources.getModel().then(
-      function (data) {
-        db("Resource controller: resource count = " + data.length);
-        $scope.resources = data;
-        $timeout(); // update view
-      },
-      function (error) {
-        popAlert(error);
-      }
-    );
+      db("ResourceCtrl Logging analytics", 2)
+      Analytics.log("resources");
+
+      db("ResourceCtrl getting resourcex next", 2)
+      Resources.getModel().then(
+        function (data) {
+          db("Resource controller: resource count = " + data.length, 2);
+          $scope.resources = data;
+          $timeout(); // update view
+        },
+        function (error) {
+          db("Resource controller: get res model error: " + error, 2);
+          popAlert(error);
+        }
+      );
+    });
 
     $scope.doRefresh = function () {
       db("Refresh Resources Tab!", 2);
@@ -321,6 +362,7 @@ angular.module('controllers', [])
               popAlert("Calendar event deleted", "Message");
             },
             function (error) {
+              if (Object.keys(error).length == 0) return;
               popAlert(error, "Error");
             }
           );
@@ -403,6 +445,7 @@ angular.module('controllers', [])
               popAlert("Calendar event added", "Message");
             },
             function (error) {
+              if (Object.keys(error).length == 0) return;
               popAlert(error, "Error");
             }
           );
@@ -503,6 +546,7 @@ angular.module('controllers', [])
               popAlert("Calendar event deleted", "Message");
             },
             function (error) {
+              if (Object.keys(error).length == 0) return;
               popAlert(error, "Error");
             }
           );
@@ -541,19 +585,19 @@ angular.module('controllers', [])
 
     $scope.$on('$ionicView.enter', function (e) {
       Analytics.log("request");
-    });
 
-    var wh = $window.innerHeight;
-    $scope.taHeight = wh - 360; // - 60;
+      var wh = $window.innerHeight;
+      $scope.taHeight = wh - 360; // - 60;
 
-    $scope.mertVersion = MertVersion;
+      $scope.mertVersion = MertVersion;
 
-    // Asset_Request__c Object Name
-    // .Name__c, .Message__c Field Names
-    $scope.assetRequest = {
-      Name__c: User.getName(),
-      Message__c: ""
-    };
+      // Asset_Request__c Object Name
+      // .Name__c, .Message__c Field Names
+      $scope.assetRequest = {
+        Name__c: User.getName(),
+        Message__c: ""
+      };
+    }); // end of $scope.$on
 
     $scope.sendRequest = function () {
 
@@ -570,38 +614,53 @@ angular.module('controllers', [])
       // #reset = 83a7aa3ead77b4b6d99e0f5312890afa
       // remove above comment for production release
       if (hex_md5(n) == "83a7aa3ead77b4b6d99e0f5312890afa") {
-        if (!confirm("Reset User. Are you sure?")) {
-          $scope.assetRequest.Name__c = User.getName();
-          return;
-        }
-        User.reset();
-        vault("reset");
-        changeView("init");
+        $scope.assetRequest.Name__c = User.getName();
+        $timeout(function () {
+          if (!confirm("Reset User. Are you sure?")) {
+            return;
+          }
+          resetDevice();
+        }, 0);
         return;
       }
 
       // #showme = 18c45baed7c84ea7e2a05d093b458c1b
       // remove above comment for production release
       if (hex_md5(n) == "18c45baed7c84ea7e2a05d093b458c1b") {
-        popAlert("user is " + User.getName() + " tkn " + User.getToken(), "Info");
         $scope.assetRequest.Name__c = User.getName();
+        popAlert("user is " + User.getName() + " tkn " + User.getToken(), "Info");
         return;
       }
 
       // #version = 0b3533808c01a105c5c36c32b4c80ce7
       // remove above comment for production release
       if (hex_md5(n) == "0b3533808c01a105c5c36c32b4c80ce7") {
-        popAlert(MertVersion, "Info");
         $scope.assetRequest.Name__c = User.getName();
+        popAlert(MertVersion, "Info");
         return;
       }
 
       // #show = 7b55b9fa3e10a94166e75a8585945059
       // remove above comment for production release
       if (hex_md5(n) == "7b55b9fa3e10a94166e75a8585945059") {
+        $scope.assetRequest.Name__c = User.getName();
         var s = Analytics.getReport();
         popAlert(s, "Analytics");
+        return;
+      }
+
+      // #debug = 7945e00c84b3ad69cc956a370130783a
+      // remove above comment for production release
+      if (hex_md5(n) == "7945e00c84b3ad69cc956a370130783a") {
         $scope.assetRequest.Name__c = User.getName();
+        $timeout(function () {
+          if (!dbIsActive("0")) {
+            var s = "0";
+            if (gv_Debug.tagList != "") s += ",";
+            gv_Debug.tagList = s + gv_Debug.tagList;
+          }
+          db("Debug enabled", 0);
+        }, 0);
         return;
       }
 

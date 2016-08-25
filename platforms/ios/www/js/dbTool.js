@@ -38,17 +38,21 @@ if ((is_chrome)&&(is_opera)) {is_chrome=false;}
 
 // set to true to show debug messages
 // 0 JS file loading
-// 1 .config() .run()
+// 1 .config() .run() pause suspend
 // 2 .controller()
 // 3 ionicPlatform ready
 // 4 network avail restart
 // 5 initialisation by initCtrl
 // 10 sf Connection
 // 11 sf Request Submission
+// 20 Resource Service Object
+// 30 Booking Service Object
+// 70 Analytics
+// 80 JSONP2 http interactions
 // 99 adhoc use
 gv_Debug = {
   on: false,
-  tagList: "" //0,1,2,3" // "0,1,2,3,4,5,10,11,99"
+  tagList: "" // 0,2,3,4,20,80,99" // "0,1,2,3,4,5,10,11,70,80,99"
 }
 
 // use this to print debug messages
@@ -78,6 +82,17 @@ function db (m,s) {
   gv_Debug.tagList = a;
 }
 
+// checks whether db tag number s is active
+function dbIsActive (s) {
+  s = s.replace(/[ ]+/gm,'');
+  var s2 = "," + s + ",";
+  var tagList = gv_Debug.tagList.replace(/[ ]+/gm,'');
+  tagList = "," + tagList + ",";
+  if (tagList==",," || s2==",,") return false;
+  if (tagList.indexOf(s2)<0) return false;
+  return true;
+}
+
 // dbPrompt(true);
 // var a = dbPrompt ("Enter parameter","10");
 // dbPrompt (false);
@@ -93,8 +108,22 @@ function dbPrompt(m, d) {
   return a;
 }
 
+// an alternative to objectInspector
+function objectScan (obj) {
+  if (obj==null) return "Object is null";
+  if (typeof obj == "string") return obj;
+  var nl = "\n";
+  var ht = "";
+  for (var ppty in obj) {
+    ht += ppty + "=" + obj[ppty] + nl;
+  }
+  return ht;
+}
+
 // inspects a JS variable and returns a string showing object graph
 function objectInspector(object, result) {
+  if (object == null)
+    return "Object is null";
   if (typeof object == "string")
     return object;
   if (typeof object != "object")

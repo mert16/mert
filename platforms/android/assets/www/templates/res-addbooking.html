@@ -1,0 +1,85 @@
+<!--
+Inherits the following models from ResourceAddbookingCtrl controller:
+...
+-->
+<ion-view view-title="Add Booking">
+
+  <!--ion-nav-buttons side="right">
+    <button ng-click="addbooking()" class="button button-clear button-dark" style='font-weight:bold'>Add</button>
+  </ion-nav-buttons-->
+
+  <ion-content class="padding">
+
+    <div class="item item-thumbnail-left">
+      <img src="http://{{MertServer}}/images/{{res.image}}"></img>
+      <h2>{{res.id}} {{res.name}}</h2>
+      <p>{{res.owner}}</p>
+      <br>
+      <p>User: {{user.name}}</p>
+    </div>
+
+    <div class="item item-body">
+      <div class="list">
+        <label class="item item-input">
+            <span class="input-label">Start Date</span>
+            <span class="input-label">{{begin.date}}</span>
+          </label>
+        <label class="item item-input">
+            <span class="input-label">Begin Time</span>
+            <span class="input-label">{{begin.time}}</span>
+          </label>
+        <label class="item item-input">
+            <span class="input-label">End Date</span>
+            <select ng-model="end.date" ng-init="end.date=begin.date">
+                <option>{{begin.date}}</option>
+                <option>{{getNextDate(begin.date,1)}}</option>
+                <option>{{getNextDate(begin.date,2)}}</option>
+                <option>{{getNextDate(begin.date,3)}}</option>
+                <option>{{getNextDate(begin.date,4)}}</option>
+                <option>{{getNextDate(begin.date,5)}}</option>
+            </select>
+          </label>
+        <label class="item item-input">
+            <span class="input-label">End Time</span>
+            <select ng-model="end.time" ng-init="end.time=getNextTime(begin.time,30)">
+                <option ng-repeat="hh in hours">{{hh}}</option>
+            </select>
+          </label>
+      </div>
+
+      <button ng-click="addbooking()" class="button button-block button-positive">
+        Add Booking
+        </button>
+    </div>
+
+    <!--
+    <p style="font-size:1.3em">
+      ID: {{res.id}}<br>
+      Name: {{res.name}}<br>
+      Owner: {{res.owner}}<br><br>
+
+      User: {{user.name}}<br><br>
+
+      Start Date: {{begin.date}} <br>
+      Start Time: {{begin.time}} <br><br>
+
+      End Date: 
+      <select ng-model="end.date" ng-init="end.date=begin.date">
+        <option>{{begin.date}}</option>
+        <option>{{getNextDate(begin.date,1)}}</option>
+        <option>{{getNextDate(begin.date,2)}}</option>
+        <option>{{getNextDate(begin.date,3)}}</option>
+        <option>{{getNextDate(begin.date,4)}}</option>
+        <option>{{getNextDate(begin.date,5)}}</option>
+     </select><br>
+
+     End Time:
+      <select ng-model="end.time" ng-init="end.time=getNextTime(begin.time,30)">
+        <option ng-repeat="hh in hours">{{hh}}</option>
+     </select><br>
+     
+    </p>
+-->
+
+  </ion-content>
+</ion-view>

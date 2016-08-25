@@ -1,0 +1,31 @@
+<!--
+Inherits the following models from ResourceBookingCtrl controller:
+res: res.name, res.id, res.owner, res.image, etc
+dates: array of day
+day: day.dow, day.date
+-->
+
+<ion-view view-title="{{res.name}}">
+  <ion-content class="padding">
+    <a href="#/tab/resources/info/{{res.id}}">
+    <img src="http://{{MertServer}}/images/{{res.image}}" 
+      style="height:200px; display:block; margin:0 auto;"/>
+    </a>
+    <ion-list>
+      <ion-item class="item-remove-animate item-icon-right" ng-repeat="day in dates" type="item-text-wrap" 
+      href="#/tab/resources/timeslots/{{day.date}}/{{day.dow}}/{{res.id}}">
+        <h2>{{day.dow}} {{day.date}}</h2>
+        <span ng-show="isNonZero(getbookingpercent(res.id,day.date)[0])" style='color:red'>Booked:{{getbookingpercent(res.id,day.date)[0]}}%&nbsp;&nbsp;</span>
+        <span ng-show="isNonZero(getbookingpercent(res.id,day.date)[1])" style='color:green'>Free:{{getbookingpercent(res.id,day.date)[1]}}%</span>  
+        <p>
+        <div class="progress">
+          <div style="float:left;background-color:red;width:{{getbookingpercent(res.id,day.date)[0]}}%">&nbsp;</div>
+          <div style="float:left;background-color:green;width:{{getbookingpercent(res.id,day.date)[1]}}%">&nbsp;</div>
+        </div>
+        </p>
+        <!--p>Slots Booked: {{getbookingcount(res.id,day.date)}}</p-->
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

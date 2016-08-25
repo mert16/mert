@@ -93,6 +93,7 @@ myservices.factory('Resources', function (MertServer, User) {
   var resourcesObj = {
 
     load: function () {
+      db ("Resource load()", 20);
 
       // get access token
       var tkn = User.getToken ();
@@ -103,14 +104,17 @@ myservices.factory('Resources', function (MertServer, User) {
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
         url += "&m=mert_svc&tkn=" + tkn;
         url += "&cmd=queryTable&p1=Resources";
-        doJSONP2(url).then(
+
+        db ("Resource load() b4 doJSONP2 call", 20);
+        doJSONP2(url, checkNetworkHelper).then(
           function (data) {
-            db("Loaded resources from MERT server. Count = " + data.length);
+            db("Loaded resources from MERT server. Count = " + data.length, 20);
             model = data;  // cache locally
             validflag = true;
             resolve(data);
           },
           function (error) {
+            db ("Resource load error: " + error,20);
             reject(error);
           }
         );
@@ -119,6 +123,8 @@ myservices.factory('Resources', function (MertServer, User) {
     },
 
     getModel: function () {
+      db ("Resource getModel()",20);
+
       var self = this;
       var p = new Promise(function (resolve, reject) {
         if (validflag) resolve(model);
@@ -129,9 +135,10 @@ myservices.factory('Resources', function (MertServer, User) {
               showWait ("hide"); 
               resolve(data);
             },
-            function (err) { 
-              showwait ("hide");
-              reject(err);
+            function (error) { 
+              db("Resource getModel error: " + error,20);
+              showWait ("hide");
+              reject(error);
             }
           );
         }
@@ -140,6 +147,8 @@ myservices.factory('Resources', function (MertServer, User) {
     },
 
     refresh: function () {
+      db ("Resource refresh()",20);
+
       var self = this;
       var p = new Promise(function (resolve, reject) {
         validflag = false;
@@ -152,6 +161,8 @@ myservices.factory('Resources', function (MertServer, User) {
     },
 
     get: function (id) {
+      db ("Resource get() id " + id, 20);
+
       if (!validflag) return null;
       for (var i = 0; i < model.length; i++) {
         if (parseInt(model[i].id) === parseInt(id)) {
@@ -245,6 +256,7 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
   var bookingsObj = {
 
     load: function () {
+      db ("Bookings load()",30);
       var p = new Promise(function (resolve, reject) {
 
         // get access token
@@ -255,9 +267,9 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
         url += "&m=mert_svc&tkn=" + tkn;
         url += "&cmd=getBookings&p1=" + getTodayStr();
         
-        doJSONP2 (url).then(
+        doJSONP2 (url, checkNetworkHelper).then(
           function (data) {
-            db("Loaded bookings from MERT server. Count = " + data.length);
+            db("Loaded bookings from MERT server. Count = " + data.length,30);
             model = data;  // cache locally
             validflag = true;
             resolve(data);
@@ -271,6 +283,7 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
     },
 
     getModel: function () {
+      db ("Bookings getModel()",30)
       var self = this;
       var p = new Promise(function (resolve, reject) {
         if (validflag) { db('cached bookings'); resolve(model); }
@@ -293,6 +306,7 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
     },
 
     refresh: function () {
+      db ("Bookings refresh()",30);
       var self = this;
       var p = new Promise(function (resolve, reject) {
         validflag = false;
@@ -417,9 +431,10 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
         var url = "http://" + MertServer + "/vpage2.php?callback=JSON_CALLBACK&h=99";
         url += "&m=mert_svc&tkn=" + tkn;
         url += "&cmd=delBooking&p1=" + whereObj.id;
-        doJSONP2 (url).then(
+
+        doJSONP2 (url, checkNetworkHelper).then(
           function (data) {
-            db("Delete MERT server booking status is " + data);
+            db("Bookings deleted MERT server record. Status: " + data, 30);
             resolve ("OK");
           }
         );
@@ -449,10 +464,10 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
       url += "&cmd=addBooking&p1=" + encodeURIComponent(vlist);
 
       var p = new Promise(function (resolve, reject) {
-        doJSONP2 (url).then(
+        doJSONP2 (url, checkNetworkHelper).then(
           function (data) {
             if (data == "OK") {
-              db("Add booking to MERT server: Status is " + data);
+              db("Bookings added record to MERT server. Status:" + data, 30);
               resolve(data);
             }
             else {

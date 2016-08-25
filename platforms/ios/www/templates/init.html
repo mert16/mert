@@ -1,5 +1,27 @@
 <ion-view view-title="{{ subview.title }}">
-  <ion-content class="padding">
+
+  <ion-content class="has-header">
+
+    <div ng-if="subview.splash">
+
+      <style>
+        .scroll { height: 100% }
+      </style>
+      
+      <div style="position:absolute;top:0;bottom:0;width:100%;
+        background-image:url('img/splash.png');
+        background-repeat:no-repeat;
+        background-size:100% 100%;">
+      </div>
+
+      <div style="position:absolute;top:220px;width:100%">
+        <p class="text-center" style='color:#22F;font-size:16pt;font-weight:bold'>
+        MERT honours SCHOOLING!
+        </p>
+      </div>
+
+    </div><!-- end of subview.splash -->
+
 
     <div ng-if="subview.register">
 
@@ -31,22 +53,24 @@
 
     </div><!-- end of subview.register -->
 
+
     <div ng-if="subview.tutorial">
 
-      <h4 style='text-align:center'>
-        Thanks for choosing the MERT App
-      </h4>
-
-      <p style='text-align:center'>
-        We've worked super hard to make you happy.
+      <p style='text-align:center;margin-top:15px;margin-bottom:15px;'>
+        Thanks for registering the MERT App
       </p>
-      <br>
+
+      <!--p style='text-align:center'>
+        We've worked super hard to make you happy.
+      </p-->
+
+      <!--br-->
 
       <ion-slide-box>
         <ion-slide>
           <div class="box 1">
             <p style='text-align:center'>
-              <img src="img/adam.jpg" alt="Adam" style="height:300px; display:block; margin:0 auto;" />
+              <img src="img/Image11.png" alt="resources" style="height:320px; display:block; margin:0 auto;" />
             </p>
             <br><br>
           </div>
@@ -54,33 +78,32 @@
         <ion-slide>
           <div class="box 2">
             <p style='text-align:center'>
-              <img src="img/mike.png" alt="Mike" style="height:300px; display:block; margin:0 auto;" />
+              <img src="img/Image12.png" alt="browse" style="height:320px; display:block; margin:0 auto;" />
             </p>
           </div>
         </ion-slide>
         <ion-slide>
           <div class="box 3">
             <p style='text-align:center'>
-              <img src="img/ben.png" alt="Ben" style="height:300px; display:block; margin:0 auto;" />
+              <img src="img/Image13.png" alt="timeslots" style="height:320px; display:block; margin:0 auto;" />
             </p>
           </div>
         </ion-slide>
         <ion-slide>
           <div class="box 4">
             <p style='text-align:center'>
-              <img src="img/max.png" alt="Max" style="height:300px; display:block; margin:0 auto;" />
+              <img src="img/Image14.png" alt="book" style="height:320px; display:block; margin:0 auto;" />
             </p>
           </div>
         </ion-slide>
         <ion-slide>
           <div class="box 5">
             <p style='text-align:center'>
-              <img src="img/perry.png" alt="Perry" style="height:300px; display:block; margin:0 auto;" /> 
+              <img src="img/Image15.png" alt="finish" style="height:320px; display:block; margin:0 auto;" /> 
             </p>
           </div>
         </ion-slide>
       </ion-slide-box>
-      <br>
 
       <p style='text-align:center'>
         Swipe to learn how to use this App.
