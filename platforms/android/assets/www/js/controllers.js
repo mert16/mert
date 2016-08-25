@@ -365,10 +365,14 @@ angular.module('controllers', [])
               if (Object.keys(error).length == 0) return;
               popAlert(error, "Error");
             }
-          );
+          ); // end calHelper()
+        },
+
+        function (error) {
+          popAlert (error);
         }
-      );
-    };
+      ); // end of Bookings.delBooking()
+    }; // end of $scope.delBooking()
 
     $scope.doRefresh = function () {
       Bookings.refresh().then(function () {
@@ -413,6 +417,7 @@ angular.module('controllers', [])
 
     $scope.end = {};
 
+    // getNextDate & getNextTime are funcs in datetime.js
     $scope.getNextDate = getNextDate;
     $scope.getNextTime = getNextTime;
 

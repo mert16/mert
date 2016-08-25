@@ -393,6 +393,7 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
 
     // delete a booking
     delBooking: function (id) {
+      db ("Bookings svc: delBooking entry",30);
       var self = this;
       var p = new Promise(function (resolve, reject) {
         var foundFlag = false;
@@ -404,6 +405,7 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
         }
 
         if (!foundFlag) {
+          db("Bookings svc: booking ID not found. Cannot delete",30);
           reject("ERROR: booking not found");
           return;
         }
@@ -436,6 +438,10 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
           function (data) {
             db("Bookings deleted MERT server record. Status: " + data, 30);
             resolve ("OK");
+          },
+          function (error) {
+            db("Bookings svc. Delete Error. Err Msg: " + error, 30);
+            reject (error);
           }
         );
 
@@ -473,9 +479,13 @@ myservices.factory('Bookings', function ($timeout, MertServer, User) {
             else {
               reject(data);
             }
+          },
+          function (error) {
+            db ("Bookings svc: addBooking error " + error,30)
+            reject (error);
           }
-        );
-      });
+        ); // end of doJSONP2
+      }); // end of new Promise
       return p;
     }
   };

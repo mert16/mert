@@ -139,8 +139,13 @@ function doJSONP2(variant, cmdFlag) {
   var p = new Promise(function (resolve, reject) {
     $http.jsonp(url)
       .success(function (data) {
-        db("doJSONP2() back from svr OK", 80);
+        db("doJSONP2() back from svr", 80);
         if (typeof data == "string") {
+          db("doJSONP2() got fr svr string=" + data,80);
+          if (data.toUpperCase() == "OK") {
+            resolve (data);
+            return;
+          }
           db ("doJSONP2() error: " + data,80);
           if (data.match(/unenrolled/i)) {
             resetDevice ("Device is unenrolled");
